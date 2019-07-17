@@ -9,6 +9,7 @@ Helpful resources that were consulted in the construction and exection of this p
 1. [Inspiration for project's organization](https://medium.com/@rrfd/cookiecutter-data-science-organize-your-projects-atom-and-jupyter-2be7862f487e)
 2. [xmlStats](https://erikberg.com/api)
 3. [NBA API information](https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md)
+4. [Information on the requirements.txt file](https://medium.com/@boscacci/why-and-how-to-make-a-requirements-txt-f329c685181e)
 
 Project Organization
 ------------
