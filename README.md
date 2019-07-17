@@ -1,7 +1,14 @@
 Sports_betting
 ==============================
 
-Implementation of Hubacek et. al. (2019) in Python to NBA sports betting
+Implementation of Hubacek et. al. 2019 in Python to NBA sports betting. This repository contains scripts that were written to download data from various internet sources, the data used in this project (in all its different forms), notebooks that demonstrate the analysis done, and files that represent the reports made from the results of said analyis. 
+
+See below for the organization of this repository. Additionally, each directory has a similar README file that outlines the contents of that directory.
+
+Helpful resources that were consulted in the construction and exection of this project, in addition to the academic papers included in references, are the following:
+1. [Inspiration for project's organization](https://medium.com/@rrfd/cookiecutter-data-science-organize-your-projects-atom-and-jupyter-2be7862f487e)
+2. [xmlStats](https://erikberg.com/api)
+3. [NBA API information](https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md)
 
 Project Organization
 ------------
