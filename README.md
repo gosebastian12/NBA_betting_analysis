@@ -10,6 +10,7 @@ Helpful resources that were consulted in the construction and exection of this p
 2. [xmlStats](https://erikberg.com/api)
 3. [NBA API information](https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md)
 4. [Information on the requirements.txt file](https://medium.com/@boscacci/why-and-how-to-make-a-requirements-txt-f329c685181e)
+5. [Getting Started w/git video](https://www.youtube.com/watch?v=HVsySz-h9r4)
 
 Project Organization
 ------------
