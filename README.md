@@ -8,12 +8,20 @@ Implementation of Hubacek et. al. 2019 in Python to NBA sports betting. This rep
 See below for the organization of this repository. Additionally, each directory has a similar README file that outlines the contents of that directory.
 
 Helpful resources that were consulted in the construction and exection of this project, in addition to the academic papers included in references, are the following:
-1. [Inspiration for project's organization](https://medium.com/@rrfd/cookiecutter-data-science-organize-your-projects-atom-and-jupyter-2be7862f487e)
-2. [xmlStats](https://erikberg.com/api)
-3. [NBA API information](https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md)
-4. [Information on the requirements.txt file](https://medium.com/@boscacci/why-and-how-to-make-a-requirements-txt-f329c685181e)
-5. [Getting Started w/git video](https://www.youtube.com/watch?v=HVsySz-h9r4)
-6. 
+1. NBA API information (currently, there is no central place that has all of the information one would need to understand this API. Putting together these resources if the way to go.)
+    1. [Information on API endpoints](https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md)
+    2. [Enpoint and Parameter Documentation](https://github.com/seemethere/nba_py/wiki/stats.nba.com-Endpoint-Documentation)
+    3. [Important information on using requests to connect to NBA API](https://stackoverflow.com/questions/46781563/how-to-obtain-a-json-response-from-the-stats-nba-com-api)
+    4. [Organization of NBA API endpoints](https://github.com/seemethere/nba_py/wiki/Completed-Work-Log)
+    5. [nba_api python package](https://github.com/swar/nba_api)
+    6. [nba_api r/NBA thread](https://www.reddit.com/r/nba/comments/9j2e05/nba_api_an_nba_api_client_for_python/)
+    7. [nba_py python package r/NBA thread](https://www.reddit.com/r/nba/comments/3k91g5/finally_some_documentation_for_the_statsnbacom_api/)
+2. [Inspiration for project's organization](https://medium.com/@rrfd/cookiecutter-data-science-organize-your-projects-atom-and-jupyter-2be7862f487e)
+3. [xmlStats API information](https://erikberg.com/api)
+4. [Basketball Reference](https://www.basketball-reference.com/)
+5. [Information on the requirements.txt file](https://medium.com/@boscacci/why-and-how-to-make-a-requirements-txt-f329c685181e)
+6. [Getting Started w/git video](https://www.youtube.com/watch?v=HVsySz-h9r4)
+7. Other resources that were instrumental in the coding aspect of this project can be found in the docstrings of the custom functions and classes that can be found in the src directory.
 
 Repository Organization
 ------------
