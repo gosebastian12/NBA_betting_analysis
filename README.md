@@ -1,6 +1,8 @@
-Sports_betting
+NBA Betting Repository
 ==============================
 
+Overview
+------------
 Implementation of Hubacek et. al. 2019 in Python to NBA sports betting. This repository contains scripts that were written to download data from various internet sources, the data used in this project (in all its different forms), notebooks that demonstrate the analysis done, and files that represent the reports made from the results of said analyis. 
 
 See below for the organization of this repository. Additionally, each directory has a similar README file that outlines the contents of that directory.
@@ -13,7 +15,7 @@ Helpful resources that were consulted in the construction and exection of this p
 5. [Getting Started w/git video](https://www.youtube.com/watch?v=HVsySz-h9r4)
 6. 
 
-Project Organization
+Repository Organization
 ------------
 
     ├── LICENSE
