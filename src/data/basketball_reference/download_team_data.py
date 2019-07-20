@@ -65,13 +65,14 @@ def team_stats_downloader(driver_object, current_year , *args , **kwargs):
     sleep(10)
     
     # get the file.
-    for file in os.listdir('/Users/sebas12/Downloads'):
+    computer_user_name = os.getlogin()
+    for file in os.listdir('/Users/{}/Downloads'.format(computer_user_name)):
         if file.endswith('.xls'):
             xls_file = file
     
     # rename and move it.
-    data_path = '/Users/sebas12/Documents/Python/Sports_betting/Data/team_data/'
-    os.rename('/Users/sebas12/Downloads/{}'.format(xls_file) ,
+    data_path = '/Users/{}/Documents/Python/sports_betting/data/external/basketball_reference/Team_data'.format(computer_user_name)
+    os.rename('/Users/{}/Downloads/{}'.format(computer_user_name , xls_file) ,
               '{}/team_data_{}.xls'.format(data_path , current_year)  )
     
     return 'Process complete for {} NBA season.'.format(current_year)
@@ -79,18 +80,9 @@ def team_stats_downloader(driver_object, current_year , *args , **kwargs):
 ### Execution
 # instantiate the webdriver
 driver = webdriver.Chrome('/Users/sebas12/Downloads/chromedriver')
-team_stats_downloader(driver , '2018-19')
-team_stats_downloader(driver , '2017-18')
-team_stats_downloader(driver , '2016-17')
-team_stats_downloader(driver , '2015-16')
-team_stats_downloader(driver , '2014-15')
-team_stats_downloader(driver , '2013-14')
-team_stats_downloader(driver , '2012-13')
-team_stats_downloader(driver , '2011-12')
-team_stats_downloader(driver , '2010-11')
-team_stats_downloader(driver , '2009-10')
-team_stats_downloader(driver , '2008-09')
-team_stats_downloader(driver , '2007-08')
-team_stats_downloader(driver , '2006-07')
-team_stats_downloader(driver , '2005-06')
-team_stats_downloader(driver , '2004-05')
+
+# download the spreadsheets iteratively
+years_list = ['20{}-{}'.format(i , i+1) for i in range(18 , 9 , -1)] + ['2009-10'] + ['200{}-0{}'.format(i , i+1) for i in range(8 , 3 , -1)]
+for year in years_list:
+    team_stats_downloader(driver , year)
+    

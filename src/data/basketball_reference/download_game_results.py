@@ -3,7 +3,7 @@
 """
 Created on Wed Jul 17 11:25:47 2019
 
-@author: sebas12
+@author: {sebas12}
 """
 
 
@@ -42,7 +42,7 @@ def game_results_downloader(driver_object, current_year , all_months = True , *a
     
     Details: This function can only handle calls for a given season.
             
-             The final destination of the downloaded files is /Users/sebas12/Documents/Python/Sports_betting/
+             The final destination of the downloaded files is /Users/{sebas12}/Documents/Python/Sports_betting/
              Data/Game_results/current_year.
              
              Note also that this function does not return anything for future use. It just prints out a 
@@ -133,47 +133,45 @@ def game_results_downloader(driver_object, current_year , all_months = True , *a
     ### Second, we rename and move the files for easier use in the future.
     # make script wait for a few seconds while all of the downloaded files load in.
     sleep(10) # the script will wait for 10 seconds before doing anything.
+
+    computer_user_name = os.getlogin()
     
     # for sorting purposes, rename the first download file.
-    os.rename('/Users/sebas12/Downloads/sportsref_download.xls' , 
-              '/Users/sebas12/Downloads/sportsref_download (0).xls')  
+    os.rename('/Users/{}/Downloads/sportsref_download.xls'.format(computer_user_name) , 
+              '/Users/{}/Downloads/sportsref_download (0).xls'.format(computer_user_name))  
     
     # get a list of the file names that were downloaded
     xls_files = []
-    for file in os.listdir('/Users/sebas12/Downloads'):
+    for file in os.listdir('/Users/{}/Downloads'.format(computer_user_name)):
         if file.endswith('.xls'):
             xls_files.append(file)
     # order the files with the function defined in the previous cell.
     xls_files = sorted_nicely(xls_files)
     
     # rename and move the files.
-    data_path = '/Users/sebas12/Documents/Python/Sports_betting/Data/Game_results/{}'.format(current_year)
+    data_path = '/Users/{}/Documents/Python/sports_betting/data/external/basketball_reference/Game_results{}'.format(computer_user_name , current_year)
     os.mkdir(data_path)
+      # put all of the files in a directory whose name is given by the year the user is downloading files.
     for file , month in zip(xls_files , months_list):
-        os.rename('/Users/sebas12/Downloads/{}'.format(file) , 
+        os.rename('/Users/{}/Downloads/{}'.format(computer_user_name , file) , 
                   '{}/{}_{}.xls'.format(data_path , month , current_year))
         
     return 'Process complete for {} NBA season.'.format(current_year)
 
 
 ### Execution
-game_results_downloader(driver , '2018-19')
-game_results_downloader(driver , '2017-18')
-game_results_downloader(driver , '2016-17')
-game_results_downloader(driver , '2015-16')
-game_results_downloader(driver , '2014-15')
-game_results_downloader(driver , '2013-14')
-game_results_downloader(driver , '2012-13')
-game_results_downloader(driver , '2011-12' , all_months = False , month_one = 'december' ,
-                                                                 month_two = 'january' , 
-                                                                 month_three = 'february' , 
-                                                                 month_four = 'march' , 
-                                                                 month_five = 'april')
-    # for some reason, there is NO november data on the website!
-game_results_downloader(driver , '2010-11')
-game_results_downloader(driver , '2009-10')
-game_results_downloader(driver , '2008-09')
-game_results_downloader(driver , '2007-08')
-game_results_downloader(driver , '2006-07')
-game_results_downloader(driver , '2005-06')
-game_results_downloader(driver , '2004-05')
+years_list = ['20{}-{}'.format(i , i+1) for i in range(18 , 9 , -1)] + ['2009-10'] + ['200{}-0{}'.format(i , i+1) for i in range(8 , 3 , -1)]
+for year in years_list:
+  if year == '2011-12':
+    # for some reason, there is NO november data on the website for this year EVEN THOUGH games were definetly
+    # played on this month in this season!
+    game_results_downloader( driver , 
+                             year , 
+                             all_months = False , 
+                             month_one = 'december' ,
+                             month_two = 'january' , 
+                             month_three = 'february' , 
+                             month_four = 'march' , 
+                             month_five = 'april' )
+  else:
+    game_results_downloader(driver , years_list)
