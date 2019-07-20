@@ -9,6 +9,9 @@ The work of this project builds on the methodology outlined in that paper, parti
 
 See below for the organization of this repository. Additionally, each directory has a similar README file that outlines the contents of that directory.
 
+Useful Resources
+------------
+
 Helpful resources that were consulted in the construction and exection of this project, in addition to the academic papers included in references, are the following:
 1. NBA API information (currently, there is no central place that has all of the information one would need to understand this API. Putting together these resources if the way to go.):
     1. [Information on API endpoints](https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md)
@@ -26,7 +29,7 @@ Helpful resources that were consulted in the construction and exection of this p
 5. [Basketball Reference](https://www.basketball-reference.com/)
 6. [Information on the requirements.txt file](https://medium.com/@boscacci/why-and-how-to-make-a-requirements-txt-f329c685181e)
 7. [Getting Started w/git video](https://www.youtube.com/watch?v=HVsySz-h9r4)
-8. Other resources that were instrumental in the coding aspect of this project can be found in the docstrings of the custom functions and classes that can be found in the src directory.
+8. Other resources that were instrumental in the coding aspect of this project can be found in the docstrings of the custom functions and classes that can be found in the src directory as well as the README files in each of the subdirectories.
 
 Repository Organization
 ------------
