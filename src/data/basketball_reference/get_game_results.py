@@ -22,29 +22,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 ### Define the class
 class game_results_downloader:
   def __init__(self , webdriver_path = '/Users/sebas12/Downloads/chromedriver', *args, **kwargs):
-    """
-    Purpose: 
-      
-    Details: 
 
-    Arguments:
-        self - Variable that contains the attributes of this class. This variable gets initilizied with the 
-               attributes driver when initialized.
-        webdriver_path - Location on the user's computer of the downloaded webdriver (see resource 2.) that will
-                         be used to execute webdriver commands. The default value is the location of the 
-                         webdriver on the author of this function's machine.
-        args - Positional arguments that are included for potential use in future versions of this class
-        kwargs - Keyword arguments that allow the user to specify which webrowser to use. In the current version
-                 of this function, this is the ONLY thing that can be validally passed as keyword argument. 
-
-                 The webrowers that the user can use are Firefox, Opera, Safari, and Chrome.
-
-                 IF the webdriver is not specified, the default is Chrome.
-
-    Useful Resources:
-        1. https://stackoverflow.com/questions/625083/what-init-and-self-do-on-python
-        2. https://www.seleniumhq.org/download/ (section Third Party Drivers, Bindings, and Plugins)
-    """
     if kwargs:
       if kwargs.get('webdriver').lower() == 'firefox':
         self.driver = webdriver.Firefox(webdriver_path)
@@ -58,34 +36,6 @@ class game_results_downloader:
     else:
       self.driver = webdriver.Chrome(webdriver_path)
 
-    def __str__(self):
-      """
-      Purpose: 
-        
-      Details: 
-
-      Arguments:
-          self -  
-
-      Useful Resources:
-          1. 
-      """
-      return 'Class to download data from https://basketball-reference.com/ using Selenium.'
-
-    def __repr__(self):
-      """
-      Purpose: 
-        
-      Details: 
-
-      Arguments:
-          self -  
-
-      Useful Resources:
-          1. 
-      """
-      return self.driver
-
   def get_data(self, season_year, all_months = True, *args, **kwargs):
       """
       **Purpose:**
@@ -97,7 +47,7 @@ class game_results_downloader:
       This function can only handle calls for one season.
 
       When the files are moved, they are moved into a new directory season_year and also renamed in the 
-      following way: Month_season_year.xls.
+      following way: {Month}_{season_year}.xls.
       
       **Arguments:**
       :type season_year: str
