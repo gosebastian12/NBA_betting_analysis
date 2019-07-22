@@ -26,7 +26,7 @@ class nba_stats_API:
 									            "User-Agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Mobile Safari/537.36"
         				}  )
 
-	def api_call(self, endpoint, *args, **kwargs):
+	def player_API_call(self, endpoint, *args, **kwargs):
 		"""
 		:Purpose: 
 
@@ -46,20 +46,112 @@ class nba_stats_API:
 		:Useful Resources: 1.
 						   2.
 		"""
+		### Determine which endpoint we will be useing
 		if endpoint == 'boxscoreadvancedv2':
-			dict_keys_to_keep = []
+			# define what we will keep
+			dict_keys_to_keep = [ "MIN" , 
+								  "E_OFF_RATING" , 
+								  "OFF_RATING" , 
+								  "E_DEF_RATING" , 
+								  "DEF_RATING" ,
+								  "E_NET_RATING" ,
+								  "NET_RATING" ,
+								  "AST_PCT" ,
+								  "AST_TOV" ,
+								  "AST_RATIO" ,
+								  "OREB_PCT" ,
+								  "DREB_PCT" ,
+								  "REB_PCT" ,
+								  "TM_TOV_PCT" ,
+								  "EFG_PCT" ,
+								  "TS_PCT" ,
+								  "USG_PCT" ,
+								  "E_USG_PCT" ,
+								  "E_PACE" ,
+								  "PACE" ,
+								  "PIE" ]
+			# set the neccessary parameters
+			try: 
+				kwargs['GameID']
+			except KeyError:
+				print('Incorrect usage of kwargs; No valid value for GameID is given. \n This is the one required keyword argument. \n Check to see if the right letters are capitalized.')
 
-		if endpoint == '':
-			dict_keys_to_keep = []
+			if len(kwargs) == 1: 
+				# that is, user only passed in a value for GameID (the one required keyword argument).
+				kwargs['EndPeriod'] = 0
+				kwargs['EndRange'] = 0
+				kwargs['RangeType'] = 0
+				kwargs['StartPeriod'] = 0
+				kwargs['StartRange'] = 0
+			elif 1 < len(kwargs) < 6:
+				# this is, user passed in more keywords than just GameID, but NOT all
+				all_params = ['GameID', 'EndPeriod', 'EndRange', 'RangeType', 'StartPeriod', 'StartRange']
+				for param in list(kwargs.keys()):
+					all_params.remove(param)
+				for param in all_params:
+					kwargs[param] = 0
 
-		if endpoint == '':
-			dict_keys_to_keep = []
+			elif len(kwargs) == 6:
+				# that is, user passed in a value for all of this endpoints parameters
+				kwargs = kwargs
+			else:
+				# that is, user passed in too many keyword arguments.
+				return 'Too many values were passed into **kwargs. \n {} does not have that many parameters. \n {} parameters were given when {} only takes 6.'.format(endpoint , len(kwargs) , endpoint)
 
-		if endpoint == '':
-			dict_keys_to_keep = []
+			# define the URL
+			kwargs_list = []
+			_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(kwargs.items()) ]
+			api_url = self.base_url + '{}?'.format(endpoint) + len(kwargs)*'{}={}&'.format(*kwargs_list)
+			requests_obj = req.get(api_url , headers = self.headers)
 
-		if endpoint == '':
-			dict_keys_to_keep = []
+			if requests_obj.status_code == 200:
+				return('Request was successful.')
+			else:
+				return('Request was not successful. Status code is: {}.'.format(requests_obj.status_code))
+
+		# if endpoint == '':
+		# 	# define what we will keep
+		# 	dict_keys_to_keep = []
+
+		# if endpoint == '':
+		# 	# define what we will keep
+		# 	dict_keys_to_keep = []
+		# 	# set the neccessary parameters
+		# 	# define the URL
+
+		# if endpoint == '':
+		# 	# define what we will keep
+		# 	dict_keys_to_keep = []
+		# 	# set the neccessary parameters
+		# 	# define the URL
+
+		# if endpoint == '':
+		# 	# define what we will keep
+		# 	dict_keys_to_keep = []
+		# 	# set the neccessary parameters
+		# 	# define the URL
+
+	def team_API_call(self, endpoint , *args, **kwargs):
+		"""
+		:Purpose: 
+
+		:Details:
+
+		:type endpoint:
+		:param endpoint:
+
+		:type args:
+		:param args:
+
+		:type kwargs:
+		:param kwargs:
+
+		:returns: 
+
+		:Useful Resources: 1.
+						   2.
+		"""
+		pass
 
 ### Execute
 if __name__ == '__main__':
