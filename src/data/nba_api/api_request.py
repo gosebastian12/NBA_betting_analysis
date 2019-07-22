@@ -71,7 +71,7 @@ class nba_stats_API:
 				  	3. `boxscoremiscv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoremiscv2.md>`_
 				  	4. `boxscorescoringv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscorescoringv2.md>`_
 				  	5. `boxscoretraditionalv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoretraditionalv2.md>`_
-				  	6. ` <>`_
+				  	6. `boxscoreusagev2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreusagev2.md>`_
 				  Trying to use this function for another endpoint will result in the function not making any calls.
 
 				  All of the endpoint parameters are specified by using the **kwargs functionality of this 
@@ -108,6 +108,8 @@ class nba_stats_API:
 					   are trying to obtain data. See the documentation for each endpoint (see Details section) 
 					   for the neccessary parameters.
 
+					   The values of the keywords ARE case sensitive.
+
 		:returns: tuple object containing organized data structures of the data obtained from the API. The  
 				  contents of that tuple will be one of the three possibilities:
 				  	1. `Two pandas DataFrames <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`_
@@ -136,528 +138,185 @@ class nba_stats_API:
 		### make endpoint case-insensitive 
 		endpoint = endpoint.lower()
 
-		### Determine which endpoint we will be useing
-		if endpoint == 'boxscoreadvancedv2':
-			self.API_params = kwargs
-			# set the neccessary parameters
-			try: 
-				kwargs['GameID']
-			except KeyError:
-				print('Incorrect usage of kwargs; No valid value for GameID is given. \n This is the one required keyword argument. \n Check to see if the right letters are capitalized.')
+		headers_to_keep_dict = {'boxscoreadvancedv2' : [ "TEAM_ID" ,	
+												         "PLAYER_ID" ,
+													     "MIN" , 
+												         "E_OFF_RATING" , 
+												         "OFF_RATING" , 
+												         "E_DEF_RATING" , 
+												         "DEF_RATING" ,
+												         "E_NET_RATING" ,
+												    	 "NET_RATING" ,
+													     "AST_PCT" ,
+													     "AST_TOV" ,
+													     "AST_RATIO" ,
+													     "OREB_PCT" ,
+													     "DREB_PCT" ,
+													     "REB_PCT" ,
+													     "TM_TOV_PCT" ,
+													     "EFG_PCT" ,
+													     "TS_PCT" ,
+													     "USG_PCT" ,
+													     "E_USG_PCT" ,
+													     "E_PACE" ,
+													     "PACE" ,
+													     "PIE" ] ,
+								'boxscorefourfactorsv2' : ["TEAM_ID" , 
+														   "PLAYER_ID" ,
+														   "FTA_RATE",
+														   "OPP_EFG_PCT",
+														   "OPP_FTA_RATE",
+														   "OPP_TOV_PCT",
+														   "OPP_OREB_PCT"] , 
+								'boxscoremiscv2' : [ "TEAM_ID" ,
+												    "PLAYER_ID" ,
+												    "PTS_OFF_TOV" ,
+												    "PTS_2ND_CHANCE" ,
+												    "PTS_FB" ,
+												    "PTS_PAINT" ,
+												    "OPP_PTS_OFF_TOV" ,
+												    "OPP_PTS_2ND_CHANCE" ,
+												    "OPP_PTS_FB" ,
+												    "OPP_PTS_PAINT" ,
+												    "BLK" ,
+												    "BLKA" ,
+												    "PF" , 
+												    "PFD" ] ,
+								'boxscorescoringv2' : [ "TEAM_ID" , 
+														"PLAYER_ID" ,
+														"PCT_FGA_2PT" ,
+														"PCT_FGA_3PT" ,
+														"PCT_PTS_2PT" ,
+														"PCT_PTS_2PT_MR" ,
+														"PCT_PTS_3PT" ,
+														"PCT_PTS_FB" ,
+														"PCT_PTS_FT" ,
+														"PCT_PTS_OFF_TOV" ,
+														"PCT_PTS_PAINT" ,
+														"PCT_AST_2PM" ,
+														"PCT_UAST_2PM" ,
+														"PCT_AST_3PM" ,
+														"PCT_UAST_3PM" ,
+														"PCT_AST_FGM" ,
+														"PCT_UAST_FGM" ] , 
+								'boxscoretraditionalv2' : [ "TEAM_ID" , 
+													        "PLAYER_ID" ,
+													        "FGM" , 
+													        "FGA" ,
+													        "FG_PCT" ,
+													        "FG3M" ,
+													        "FG3A" ,
+													        "FG3_PCT" ,
+													        "FTM" ,
+													        "FTA" ,
+													        "FT_PCT" ,
+													        "OREB" ,
+													        "DREB" ,
+													        "REB" ,
+													        "AST" ,
+													        "STL" ,
+													        "TO" ,
+													        "PF" ,
+													        "PTS" ,
+													        "PLUS_MINUS" ] ,
+								'boxscoreusagev2' : []}
+		try:
+			headers_to_keep_dict[endpoint]
+		except KeyError:
+			return "Invalid endpoint given. See the details section of this method's docstring for valid endpoints."
 
-			if len(kwargs) == 1: 
-				# that is, user only passed in a value for GameID (the one required keyword argument).
-				self.API_params['EndPeriod'] = 0
-				self.API_params['EndRange'] = 0
-				self.API_params['RangeType'] = 0
-				self.API_params['StartPeriod'] = 0
-				self.API_params['StartRange'] = 0
-			elif 1 < len(kwargs) < 6:
-				# this is, user passed in more keywords than just GameID, but NOT all
-				all_params = ['GameID', 'EndPeriod', 'EndRange', 'RangeType', 'StartPeriod', 'StartRange']
-				for param in list(kwargs.keys()):
-					all_params.remove(param)
-				for param in all_params:
-					self.API_params[param] = 0
-			elif len(kwargs) == 6:
-				# that is, user passed in a value for all of the endpoints parameters
-				pass
+		self.API_params = kwargs
+		# set the neccessary parameters
+		try: 
+			kwargs['GameID']
+		except KeyError:
+			print('Incorrect usage of kwargs; No valid value for GameID is given. \n This is the one required keyword argument. \n Check to see if the right letters are capitalized.')
+
+		if len(kwargs) == 1: 
+			# that is, user only passed in a value for GameID (the one required keyword argument).
+			self.API_params['EndPeriod'] = 0
+			self.API_params['EndRange'] = 0
+			self.API_params['RangeType'] = 0
+			self.API_params['StartPeriod'] = 0
+			self.API_params['StartRange'] = 0
+		elif 1 < len(kwargs) < 6:
+			# this is, user passed in more keywords than just GameID, but NOT all
+			all_params = ['GameID', 'EndPeriod', 'EndRange', 'RangeType', 'StartPeriod', 'StartRange']
+			for param in list(kwargs.keys()):
+				all_params.remove(param)
+			for param in all_params:
+				self.API_params[param] = 0
+		elif len(kwargs) == 6:
+			# that is, user passed in a value for all of the endpoints parameters
+			pass
+		else:
+			# that is, user passed in too many keyword arguments.
+			return 'Too many values were passed into **kwargs. \n The function is setup so that kwargs can only be used to pass in endpoint parameters. \n {} does not have that many parameters. \n {} parameters were given when {} only takes 6.'.format(endpoint , len(kwargs) , endpoint)
+
+		# define the URL and make the request
+		kwargs_list = []
+		_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
+		param_string = len(self.API_params)*'{}={}&'
+
+		api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
+		requests_obj = self.driver.request('GET' , api_url)
+		self.last_url_called = api_url
+
+		# if successful, format and return the data.
+		if requests_obj.status_code == 200:
+			print('Request to {} was successful.'.format(self.last_url_called))
+
+			data_dict = requests_obj.json()['resultSets'][0]
+				# the format of the json object that we get from our GET request is a dictionary with keys
+				# 'resource', 'parameters', and 'resultSets'. The location of the data we want is in the
+				# 'resultSets' key and the other information is irrelevent to us so we get rid of it. The
+				# data in 'resultSets' is in two lists. The first one contains a dictionary that has the
+				# player statistics we want while the other contains a dictionary with the team data we are
+				# currently not interested in so we also throw that away. 
+			stat_headers = data_dict['headers']
+			player_stats = data_dict['rowSet']
+
+			if prune_player_data:
+				# define what we will keep
+				headers_to_keep = headers_to_keep_dict[endpoint] # this was determined beforehand.
+				indices_to_keep = []
+				for kept_header in headers_to_keep:
+					indices_to_keep.append(stat_headers.index(kept_header))
+				for list_index, player_list in enumerate(player_stats):
+					player_stats[list_index] = [player_list[i] for i in indices_to_keep]
+				stat_headers = headers_to_keep
+				team_ID_index = 0
+				player_ID_index = 1 
 			else:
-				# that is, user passed in too many keyword arguments.
-				return 'Too many values were passed into **kwargs. \n The function is setup so that kwargs can only be used to pass in endpoint parameters. \n {} does not have that many parameters. \n {} parameters were given when {} only takes 6.'.format(endpoint , len(kwargs) , endpoint)
+				team_ID_index = 1
+				player_ID_index = 4
 
-			# define the URL and make the request
-			kwargs_list = []
-			_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
-			param_string = len(self.API_params)*'{}={}&'
+			# seperate away (listed first) and home players (listed_last)
+			away_teamID = player_stats[0][team_ID_index]
+			home_teamID = player_stats[-1][team_ID_index]
 
-			api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
-			requests_obj = self.driver.request('GET' , api_url)
-			self.last_url_called = api_url
+			away_player_stats = [player for player in player_stats if player[team_ID_index] == away_teamID]
+			home_player_stats = [player for player in player_stats if player[team_ID_index] == home_teamID]
 
-			# if successful, format and return the data.
-			if requests_obj.status_code == 200:
-				print('Request to {} was successful.'.format(self.last_url_called))
-
-				data_dict = requests_obj.json()['resultSets'][0]
-					# the format of the json object that we get from our GET request is a dictionary with keys
-					# 'resource', 'parameters', and 'resultSets'. The location of the data we want is in the
-					# 'resultSets' key and the other information is irrelevent to us so we get rid of it. The
-					# data in 'resultSets' is in two lists. The first one contains a dictionary that has the
-					# player statistics we want while the other contains a dictionary with the team data we are
-					# currently not interested in so we also throw that away. 
-				stat_headers = data_dict['headers']
-				player_stats = data_dict['rowSet']
-
-				if prune_player_data:
-					# define what we will keep
-					headers_to_keep = [ "TEAM_ID" ,	
-									    "PLAYER_ID" ,
-										"MIN" , 
-									    "E_OFF_RATING" , 
-									    "OFF_RATING" , 
-									    "E_DEF_RATING" , 
-									    "DEF_RATING" ,
-									    "E_NET_RATING" ,
-									    "NET_RATING" ,
-									    "AST_PCT" ,
-									    "AST_TOV" ,
-									    "AST_RATIO" ,
-									    "OREB_PCT" ,
-									    "DREB_PCT" ,
-									    "REB_PCT" ,
-									    "TM_TOV_PCT" ,
-									    "EFG_PCT" ,
-									    "TS_PCT" ,
-									    "USG_PCT" ,
-									    "E_USG_PCT" ,
-									    "E_PACE" ,
-									    "PACE" ,
-									    "PIE" ] # this was determined beforehand.
-					indices_to_keep = []
-					for kept_header in headers_to_keep:
-						indices_to_keep.append(stat_headers.index(kept_header))
-					for list_index, player_list in enumerate(player_stats):
-						player_stats[list_index] = [player_list[i] for i in indices_to_keep]
-					stat_headers = headers_to_keep
-					team_ID_index = 0
-					player_ID_index = 1 
-				else:
-					team_ID_index = 1
-					player_ID_index = 4
-
-				# seperate away (listed first) and home players (listed_last)
-				away_teamID = player_stats[0][team_ID_index]
-				home_teamID = player_stats[-1][team_ID_index]
-
-				away_player_stats = [player for player in player_stats if player[team_ID_index] == away_teamID]
-				home_player_stats = [player for player in player_stats if player[team_ID_index] == home_teamID]
-
-				# order each list by player ids for convience later on (if the user desires).
-				if sort_by_playerID:
-					away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
-					home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
-				
-				# determine how to output the obtained data
-				if return_format.lower() == "dataframe":
-					return pd.DataFrame(away_player_stats, columns = stat_headers) , pd.DataFrame(home_player_stats, columns = stat_headers)
-
-				if return_format.lower() == "array":
-					return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
-
-				if return_format.lower() == "list":
-					return stat_headers , away_player_stats , home_player_stats
-
-				else:
-					return "Invaid data format requested. Valid values are dataframe, array, and list."
-
-			else:
-				return 'Request to {} was not successful. \n Status code is: {}.'.format( self.last_url_called , 
-																						  requests_obj.status_code )
-
-		if endpoint == 'boxscorefourfactorsv2':
-			self.API_params = kwargs
-			# set the neccessary parameters
-			try: 
-				kwargs['GameID']
-			except KeyError:
-				print('Incorrect usage of kwargs; No valid value for GameID is given. \n This is the one required keyword argument. \n Check to see if the right letters are capitalized.')
-
-			if len(kwargs) == 1: 
-				# that is, user only passed in a value for GameID (the one required keyword argument).
-				self.API_params['EndPeriod'] = 0
-				self.API_params['EndRange'] = 0
-				self.API_params['RangeType'] = 0
-				self.API_params['StartPeriod'] = 0
-				self.API_params['StartRange'] = 0
-			elif 1 < len(kwargs) < 6:
-				# this is, user passed in more keywords than just GameID, but NOT all
-				all_params = ['GameID', 'EndPeriod', 'EndRange', 'RangeType', 'StartPeriod', 'StartRange']
-				for param in list(kwargs.keys()):
-					all_params.remove(param)
-				for param in all_params:
-					self.API_params[param] = 0
-			elif len(kwargs) == 6:
-				# that is, user passed in a value for all of the endpoints parameters
-				pass
-			else:
-				# that is, user passed in too many keyword arguments.
-				return 'Too many values were passed into **kwargs. \n The function is setup so that kwargs can only be used to pass in endpoint parameters. \n {} does not have that many parameters. \n {} parameters were given when {} only takes 6.'.format(endpoint , len(kwargs) , endpoint)
-
-			# define the URL and make the request
-			kwargs_list = []
-			_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
-			param_string = len(self.API_params)*'{}={}&'
-
-			api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
-			requests_obj = self.driver.request('GET' , api_url)
-			self.last_url_called = api_url
-
-			# if successful, format and return the data.
-			if requests_obj.status_code == 200:
-				print('Request to {} was successful.'.format(self.last_url_called))
-
-				data_dict = requests_obj.json()['resultSets'][0]
-				stat_headers = data_dict['headers']
-				player_stats = data_dict['rowSet']
-
-				if prune_player_data:
-					# define what we will keep
-					headers_to_keep = ["TEAM_ID" , 
-									   "PLAYER_ID" ,
-									   "FTA_RATE",
-									   "OPP_EFG_PCT",
-									   "OPP_FTA_RATE",
-									   "OPP_TOV_PCT",
-									   "OPP_OREB_PCT"]
-					indices_to_keep = []
-					for kept_header in headers_to_keep:
-						indices_to_keep.append(stat_headers.index(kept_header))
-					for list_index, player_list in enumerate(player_stats):
-						player_stats[list_index] = [player_list[i] for i in indices_to_keep]
-					stat_headers = headers_to_keep
-					team_ID_index = 0
-					player_ID_index = 1 
-				else:
-					team_ID_index = 1
-					player_ID_index = 4
-
-				# seperate away (listed first) and home players (listed_last)
-				away_teamID = player_stats[0][team_ID_index]
-				home_teamID = player_stats[-1][team_ID_index]
-
-				away_player_stats = [player for player in player_stats if player[team_ID_index] == away_teamID]
-				home_player_stats = [player for player in player_stats if player[team_ID_index] == home_teamID]
-
-				# order each list by player ids for convience later on (if the user desires).
-				if sort_by_playerID:
-					away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
-					home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
-				
-				# determine how to output the obtained data
-				if return_format.lower() == "dataframe":
-					return pd.DataFrame(away_player_stats, columns = stat_headers) , pd.DataFrame(home_player_stats, columns = stat_headers)
-
-				if return_format.lower() == "array":
-					return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
-
-				if return_format.lower() == "list":
-					return stat_headers , away_player_stats , home_player_stats
-
-			else:
-				return 'Request to {} was not successful. \n Status code is: {}.'.format( self.last_url_called , 
-																						  requests_obj.status_code )
-
+			# order each list by player ids for convience later on (if the user desires).
+			if sort_by_playerID:
+				away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
+				home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
 			
-		if endpoint == 'boxscoremiscv2':
-			self.API_params = kwargs
-			# set the neccessary parameters
-			try: 
-				kwargs['GameID']
-			except KeyError:
-				print('Incorrect usage of kwargs; No valid value for GameID is given. \n This is the one required keyword argument. \n Check to see if the right letters are capitalized.')
-
-			if len(kwargs) == 1: 
-				# that is, user only passed in a value for GameID (the one required keyword argument).
-				self.API_params['EndPeriod'] = 0
-				self.API_params['EndRange'] = 0
-				self.API_params['RangeType'] = 0
-				self.API_params['StartPeriod'] = 0
-				self.API_params['StartRange'] = 0
-			elif 1 < len(kwargs) < 6:
-				# this is, user passed in more keywords than just GameID, but NOT all
-				all_params = ['GameID', 'EndPeriod', 'EndRange', 'RangeType', 'StartPeriod', 'StartRange']
-				for param in list(kwargs.keys()):
-					all_params.remove(param)
-				for param in all_params:
-					self.API_params[param] = 0
-			elif len(kwargs) == 6:
-				# that is, user passed in a value for all of the endpoints parameters
-				pass
+			# determine how to output the obtained data
+			if return_format.lower() == "dataframe":
+				return pd.DataFrame(away_player_stats, columns = stat_headers) , pd.DataFrame(home_player_stats, columns = stat_headers)
+			if return_format.lower() == "array":
+				return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
+			if return_format.lower() == "list":
+				return stat_headers , away_player_stats , home_player_stats
 			else:
-				# that is, user passed in too many keyword arguments.
-				return 'Too many values were passed into **kwargs. \n The function is setup so that kwargs can only be used to pass in endpoint parameters. \n {} does not have that many parameters. \n {} parameters were given when {} only takes 6.'.format(endpoint , len(kwargs) , endpoint)
-
-			# define the URL and make the request
-			kwargs_list = []
-			_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
-			param_string = len(self.API_params)*'{}={}&'
-
-			api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
-			requests_obj = self.driver.request('GET' , api_url)
-			self.last_url_called = api_url
-
-			# if successful, format and return the data.
-			if requests_obj.status_code == 200:
-				print('Request to {} was successful.'.format(self.last_url_called))
-
-				data_dict = requests_obj.json()['resultSets'][0]
-				stat_headers = data_dict['headers']
-				player_stats = data_dict['rowSet']
-
-				if prune_player_data:
-					# define what we will keep
-					headers_to_keep = [ "TEAM_ID" ,
-									    "PLAYER_ID" ,
-									    "PTS_OFF_TOV" ,
-									    "PTS_2ND_CHANCE" ,
-									    "PTS_FB" ,
-									    "PTS_PAINT" ,
-									    "OPP_PTS_OFF_TOV" ,
-									    "OPP_PTS_2ND_CHANCE" ,
-									    "OPP_PTS_FB" ,
-									    "OPP_PTS_PAINT" ,
-									    "BLK" ,
-									    "BLKA" ,
-									    "PF" , 
-									    "PFD" ]
-					indices_to_keep = []
-					for kept_header in headers_to_keep:
-						indices_to_keep.append(stat_headers.index(kept_header))
-					for list_index, player_list in enumerate(player_stats):
-						player_stats[list_index] = [player_list[i] for i in indices_to_keep]
-					stat_headers = headers_to_keep
-					team_ID_index = 0
-					player_ID_index = 1 
-				else:
-					team_ID_index = 1
-					player_ID_index = 4
-
-				# seperate away (listed first) and home players (listed_last)
-				away_teamID = player_stats[0][team_ID_index]
-				home_teamID = player_stats[-1][team_ID_index]
-
-				away_player_stats = [player for player in player_stats if player[team_ID_index] == away_teamID]
-				home_player_stats = [player for player in player_stats if player[team_ID_index] == home_teamID]
-
-				# order each list by player ids for convience later on (if the user desires).
-				if sort_by_playerID:
-					away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
-					home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
-
-				# determine how to output the obtained data
-				if return_format.lower() == "dataframe":
-					return pd.DataFrame(away_player_stats, columns = stat_headers) , pd.DataFrame(home_player_stats, columns = stat_headers)
-
-				if return_format.lower() == "array":
-					return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
-
-				if return_format.lower() == "list":
-					return stat_headers , away_player_stats , home_player_stats
-
-			else:
-				return 'Request to {} was not successful. \n Status code is: {}.'.format( self.last_url_called , 
-																						  requests_obj.status_code )
-
-		if endpoint == 'boxscorescoringv2':
-			self.API_params = kwargs
-			# set the neccessary parameters
-			try: 
-				kwargs['GameID']
-			except KeyError:
-				print('Incorrect usage of kwargs; No valid value for GameID is given. \n This is the one required keyword argument. \n Check to see if the right letters are capitalized.')
-
-			if len(kwargs) == 1: 
-				# that is, user only passed in a value for GameID (the one required keyword argument).
-				self.API_params['EndPeriod'] = 0
-				self.API_params['EndRange'] = 0
-				self.API_params['RangeType'] = 0
-				self.API_params['StartPeriod'] = 0
-				self.API_params['StartRange'] = 0
-			elif 1 < len(kwargs) < 6:
-				# this is, user passed in more keywords than just GameID, but NOT all
-				all_params = ['GameID', 'EndPeriod', 'EndRange', 'RangeType', 'StartPeriod', 'StartRange']
-				for param in list(kwargs.keys()):
-					all_params.remove(param)
-				for param in all_params:
-					self.API_params[param] = 0
-			elif len(kwargs) == 6:
-				# that is, user passed in a value for all of the endpoints parameters
-				pass
-			else:
-				# that is, user passed in too many keyword arguments.
-				return 'Too many values were passed into **kwargs. \n The function is setup so that kwargs can only be used to pass in endpoint parameters. \n {} does not have that many parameters. \n {} parameters were given when {} only takes 6.'.format(endpoint , len(kwargs) , endpoint)
-
-			# define the URL and make the request
-			kwargs_list = []
-			_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
-			param_string = len(self.API_params)*'{}={}&'
-
-			api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
-			requests_obj = self.driver.request('GET' , api_url)
-			self.last_url_called = api_url
-
-			# if successful, format and return the data.
-			if requests_obj.status_code == 200:
-				print('Request to {} was successful.'.format(self.last_url_called))
-
-				data_dict = requests_obj.json()['resultSets'][0]
-				stat_headers = data_dict['headers']
-				player_stats = data_dict['rowSet']
-
-				if prune_player_data:
-					# define what we will keep
-					headers_to_keep = [ "TEAM_ID" , 
-										"PLAYER_ID" ,
-										"PCT_FGA_2PT" ,
-										"PCT_FGA_3PT" ,
-										"PCT_PTS_2PT" ,
-										"PCT_PTS_2PT_MR" ,
-										"PCT_PTS_3PT" ,
-										"PCT_PTS_FB" ,
-										"PCT_PTS_FT" ,
-										"PCT_PTS_OFF_TOV" ,
-										"PCT_PTS_PAINT" ,
-										"PCT_AST_2PM" ,
-										"PCT_UAST_2PM" ,
-										"PCT_AST_3PM" ,
-										"PCT_UAST_3PM" ,
-										"PCT_AST_FGM" ,
-										"PCT_UAST_FGM" ]
-					indices_to_keep = []
-					for kept_header in headers_to_keep:
-						indices_to_keep.append(stat_headers.index(kept_header))
-					for list_index, player_list in enumerate(player_stats):
-						player_stats[list_index] = [player_list[i] for i in indices_to_keep]
-					stat_headers = headers_to_keep
-					team_ID_index = 0
-					player_ID_index = 1 
-				else:
-					team_ID_index = 1
-					player_ID_index = 4
-
-				# seperate away (listed first) and home players (listed_last)
-				away_teamID = player_stats[0][team_ID_index]
-				home_teamID = player_stats[-1][team_ID_index]
-
-				away_player_stats = [player for player in player_stats if player[team_ID_index] == away_teamID]
-				home_player_stats = [player for player in player_stats if player[team_ID_index] == home_teamID]
-
-				# order each list by player ids for convience later on (if the user desires).
-				if sort_by_playerID:
-					away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
-					home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
-
-				# determine how to output the obtained data
-				if return_format.lower() == "dataframe":
-					return pd.DataFrame(away_player_stats, columns = stat_headers) , pd.DataFrame(home_player_stats, columns = stat_headers)
-
-				if return_format.lower() == "array":
-					return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
-
-				if return_format.lower() == "list":
-					return stat_headers , away_player_stats , home_player_stats
-
-			else:
-				return 'Request to {} was not successful. \n Status code is: {}.'.format( self.last_url_called , 
-																						  requests_obj.status_code )
-
-		if endpoint == 'boxscoretraditionalv2':
-			self.API_params = kwargs
-			# set the neccessary parameters
-			try: 
-				kwargs['GameID']
-			except KeyError:
-				print('Incorrect usage of kwargs; No valid value for GameID is given. \n This is the one required keyword argument. \n Check to see if the right letters are capitalized.')
-
-			if len(kwargs) == 1: 
-				# that is, user only passed in a value for GameID (the one required keyword argument).
-				self.API_params['EndPeriod'] = 0
-				self.API_params['EndRange'] = 0
-				self.API_params['RangeType'] = 0
-				self.API_params['StartPeriod'] = 0
-				self.API_params['StartRange'] = 0
-			elif 1 < len(kwargs) < 6:
-				# this is, user passed in more keywords than just GameID, but NOT all
-				all_params = ['GameID', 'EndPeriod', 'EndRange', 'RangeType', 'StartPeriod', 'StartRange']
-				for param in list(kwargs.keys()):
-					all_params.remove(param)
-				for param in all_params:
-					self.API_params[param] = 0
-			elif len(kwargs) == 6:
-				# that is, user passed in a value for all of the endpoints parameters
-				pass
-			else:
-				# that is, user passed in too many keyword arguments.
-				return 'Too many values were passed into **kwargs. \n The function is setup so that kwargs can only be used to pass in endpoint parameters. \n {} does not have that many parameters. \n {} parameters were given when {} only takes 6.'.format(endpoint , len(kwargs) , endpoint)
-
-			# define the URL and make the request
-			kwargs_list = []
-			_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
-			param_string = len(self.API_params)*'{}={}&'
-
-			api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
-			requests_obj = self.driver.request('GET' , api_url)
-			self.last_url_called = api_url
-
-			# if successful, format and return the data.
-			if requests_obj.status_code == 200:
-				print('Request to {} was successful.'.format(self.last_url_called))
-
-				data_dict = requests_obj.json()['resultSets'][0]
-				stat_headers = data_dict['headers']
-				player_stats = data_dict['rowSet']
-
-				if prune_player_data:
-					# define what we will keep
-					headers_to_keep = [ "TEAM_ID" , 
-								        "PLAYER_ID" ,
-								        "FGM" , 
-								        "FGA" ,
-								        "FG_PCT" ,
-								        "FG3M" ,
-								        "FG3A" ,
-								        "FG3_PCT" ,
-								        "FTM" ,
-								        "FTA" ,
-								        "FT_PCT" ,
-								        "OREB" ,
-								        "DREB" ,
-								        "REB" ,
-								        "AST" ,
-								        "STL" ,
-								        "TO" ,
-								        "PF" ,
-								        "PTS" ,
-								        "PLUS_MINUS" ]
-					indices_to_keep = []
-					for kept_header in headers_to_keep:
-						indices_to_keep.append(stat_headers.index(kept_header))
-					for list_index, player_list in enumerate(player_stats):
-						player_stats[list_index] = [player_list[i] for i in indices_to_keep]
-					stat_headers = headers_to_keep
-					team_ID_index = 0
-					player_ID_index = 1 
-				else:
-					team_ID_index = 1
-					player_ID_index = 4
-
-				# seperate away (listed first) and home players (listed_last)
-				away_teamID = player_stats[0][team_ID_index]
-				home_teamID = player_stats[-1][team_ID_index]
-
-				away_player_stats = [player for player in player_stats if player[team_ID_index] == away_teamID]
-				home_player_stats = [player for player in player_stats if player[team_ID_index] == home_teamID]
-
-				# order each list by player ids for convience later on (if the user desires).
-				if sort_by_playerID:
-					away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
-					home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
-
-				# determine how to output the obtained data
-				if return_format.lower() == "dataframe":
-					return pd.DataFrame(away_player_stats, columns = stat_headers) , pd.DataFrame(home_player_stats, columns = stat_headers)
-
-				if return_format.lower() == "array":
-					return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
-
-				if return_format.lower() == "list":
-					return stat_headers , away_player_stats , home_player_stats
-
-		if endpoint == 'boxscoreusagev2':
+				return "Invaid data format requested. Valid values are dataframe, array, and list."
 
 		else:
-			return 'Invalid endpoint. See docstring of this function for endpoints that this function can work with.'
+			return 'Request to {} was not successful. \n Status code is: {}.'.format( self.last_url_called , 
+																					  requests_obj.status_code )
+
 
 	def team_API_call(self, endpoint , *args, **kwargs):
 		"""
