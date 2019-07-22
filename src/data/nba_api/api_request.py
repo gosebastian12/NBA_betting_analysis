@@ -219,7 +219,26 @@ class nba_stats_API:
 													        "PF" ,
 													        "PTS" ,
 													        "PLUS_MINUS" ] ,
-								'boxscoreusagev2' : []}
+								'boxscoreusagev2' : ["TEAM_ID" , 
+													 "PLAYER_ID" ,
+													 "PCT_FGM" ,
+													 "PCT_FGA" ,
+													 "PCT_FG3M" ,
+													 "PCT_FG3A" ,
+													 "PCT_FTM" ,
+													 "PCT_FTA" ,
+													 "PCT_OREB" ,
+													 "PCT_DREB" ,
+													 "PCT_REB" ,
+													 "PCT_AST" ,
+													 "PCT_TOV" ,
+													 "PCT_STL" ,
+													 "PCT_BLK" ,
+													 "PCT_BLKA" ,
+													 "PCT_PF" ,
+													 "PCT_PFD" , 
+													 "PCT_PTS" ]
+													     }
 		try:
 			headers_to_keep_dict[endpoint]
 		except KeyError:
