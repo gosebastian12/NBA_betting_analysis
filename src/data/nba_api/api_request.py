@@ -57,7 +57,7 @@ class nba_stats_API:
 		self.API_params = None
 		
 
-	def player_API_call(self, endpoint, return_format = 'DataFrame', sort_by_playerID = True, prune_player_data = True, *args, **kwargs):
+	def player_API_call(self, endpoint, return_format = 'DataFrame', sort_by_playerID = True, prune_player_data = True, keepIDs = True, *args, **kwargs):
 		"""
 		:Purpose: This function uses the SeleniumRequests Python package (see resource 1.) to perform an API GET
 				  request to the stats.nba.com API. After making the request, the function then performs some
@@ -296,8 +296,8 @@ class nba_stats_API:
 			player_stats = data_dict['rowSet']
 
 			if prune_player_data:
-				# define what we will keep
 				headers_to_keep = headers_to_keep_dict[endpoint] # this was determined beforehand.
+				# define what we will keep
 				indices_to_keep = []
 				for kept_header in headers_to_keep:
 					indices_to_keep.append(stat_headers.index(kept_header))
@@ -319,12 +319,19 @@ class nba_stats_API:
 
 			# order each list by player ids for convience later on (if the user desires).
 			if sort_by_playerID:
+				print(away_player_stats)
+				print(home_player_stats)
 				away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
 				home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
 			
 			# determine how to output the obtained data
 			if return_format.lower() == "dataframe":
-				return pd.DataFrame(away_player_stats, columns = stat_headers) , pd.DataFrame(home_player_stats, columns = stat_headers)
+				away_df = pd.DataFrame(away_player_stats, columns = stat_headers)
+				home_df = pd.DataFrame(home_player_stats, columns = stat_headers)
+				if not keepIDs:
+					away_df = away_df.drop( ["TEAM_ID" , "PLAYER_ID"] , axis = 1 )
+					home_df = home_df.drop( ["TEAM_ID" , "PLAYER_ID"] , axis = 1 )
+				return away_df , home_df
 			if return_format.lower() == "array":
 				return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
 			if return_format.lower() == "list":
@@ -354,8 +361,8 @@ class nba_stats_API:
 
 		:returns: 
 
-		:Useful Resources: 1.
-						   2.
+		:Useful Resources: 1. ` <>`_
+						   2. ` <>`_
 		"""
 		pass
 
@@ -365,12 +372,62 @@ class nba_stats_API:
 
 		:Details:
 
+		:type args:
+		:param args:
+
+		:type kwargs:
+		:param kwargs:
+
 		:returns: 
 
-		:Useful Resources: 1.
-						   2.
+		:Useful Resources: 1. ` <>`_
+						   2. ` <>`_
 		"""
 		pass
+
+	def player_compiler(self, GameID, *args, **kwargs):
+		"""
+		:Purpose: 
+
+		:Details:
+
+		:type GameID:
+		:param GameID:
+
+		:type args:
+		:param args:
+
+		:type kwargs:
+		:param kwargs:
+
+		:returns: 
+
+		:Useful Resources: 1. ` <>`_
+						   2. ` <>`_
+		"""
+		away_df_list = []
+		home_df_list = []
+		if kwargs:
+			boxscores = kwargs.values()
+		else:
+			boxscores = [ 'boxscoreadvancedv2' , 
+						  'boxscorefourfactorsv2' , 
+						  'boxscoremiscv2' , 
+						  'boxscorescoringv2' , 
+						  'boxscoretraditionalv2' , 
+						  'boxscoreusagev2' ]
+		for box_index , boxscore in enumerate(boxscores):
+			if box_index == 0:
+				away_df , home_df = self.player_API_call(endpoint = boxscore, GameID = GameID)
+			else:
+				away_df , home_df = self.player_API_call(endpoint = boxscore, GameID = GameID, keepIDs = False)
+			away_df_list.append(away_df)
+			home_df_list.append(home_df)
+
+		final_away_df = pd.concat(away_df_list , axis = 1)
+		final_home_df = pd.concat(home_df_list , axis = 1)
+
+		return final_away_df , final_home_df
 
 ### Execute
 if __name__ == '__main__':
