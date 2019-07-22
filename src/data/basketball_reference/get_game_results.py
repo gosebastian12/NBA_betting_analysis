@@ -19,7 +19,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 ### Define the class
 class game_results_downloader:
-  def __init__(self , webdriver_path = '/Users/sebas12/Downloads/chromedriver', *args, **kwargs):
+  def __init__(self, webdriver_path = '/Users/sebas12/Downloads/chromedriver', *args, **kwargs):
 
     if kwargs:
       if kwargs.get('webdriver').lower() == 'firefox':
