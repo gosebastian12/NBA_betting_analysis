@@ -12,3 +12,7 @@ From Basketball-reference
 
 From NBA API
 ^^^^^^^^^^^^^^^^^^
+.. toctree::
+   :maxdepth: 4
+
+   Player and team boxscore statistics <api_request>
