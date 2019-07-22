@@ -42,10 +42,11 @@ class team_stats_downloader:
         :param kwargs: Keyword arguments that allow the user to specify the path of the location that the function 
                        will move the downloaded .xls spreadsheet to. If not specified, the function defaults to: 
                        ~/data/external/basketball_reference/Team_data/
+
+        :returns: str telling the user that the downloading and relocation of files is complete.
         
-        :Useful Resources:
-        1. `Basketball-reference Homepage <Basketball-reference.com>`_
-        2. `Selenium Documentation. <https://www.seleniumhq.org/>`_
+        :Useful Resources: 1. `Basketball-reference Homepage <Basketball-reference.com>`_
+                           2. `Selenium Documentation. <https://www.seleniumhq.org/>`_
         """
         
         ### Get the data

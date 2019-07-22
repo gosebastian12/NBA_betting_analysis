@@ -14,7 +14,7 @@ Useful Resources
 
 Helpful resources that were consulted in the construction and exection of this project, in addition to the academic papers included in references, are the following:
 1. NBA API information (currently, there is no central place that has all of the information one would need to understand this API. Putting together these resources if the way to go.):
-    1. [Information on API endpoints](https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md)
+    1. [Information on API endpoints](https://github.com/swar/nba_api/tree/master/docs/nba_api/stats/endpoints)
     2. [Enpoint and Parameter Documentation](https://github.com/seemethere/nba_py/wiki/stats.nba.com-Endpoint-Documentation)
     3. [Important information on using requests to connect to NBA API](https://stackoverflow.com/questions/46781563/how-to-obtain-a-json-response-from-the-stats-nba-com-api)
     4. [Organization of NBA API endpoints](https://github.com/seemethere/nba_py/wiki/Completed-Work-Log)
