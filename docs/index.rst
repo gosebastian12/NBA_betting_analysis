@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Sports-betting documentation
-************************
+Sports-betting Project Documentation
+***************************
 
 Overview
 ===================
@@ -13,11 +13,16 @@ Welcome to the documentation page of my sports-betting project. Here you will fi
 Contents:
 ===================
 
+.. automodule:: get_game_results.game_results_downloader
+   :members:
+
 .. toctree::
    :maxdepth: 2
 
    getting-started
    commands
+   modules
+
 
 
 

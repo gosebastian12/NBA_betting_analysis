@@ -1,8 +1,14 @@
-basketball_reference
+Getting NBA Data
 ====================
+
+From Basketball-reference
+^^^^^^^^^^^^^^^^^^
 
 .. toctree::
    :maxdepth: 4
 
-   get_game_results
-   get_team_data
+   Getting game results <get_game_results>
+   Getting team data <get_team_data>
+
+From NBA API
+^^^^^^^^^^^^^^^^^^

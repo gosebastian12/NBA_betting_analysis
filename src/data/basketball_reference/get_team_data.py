@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 17 11:25:47 2019
 
-@author: sebas12
-"""
+# Created on Wed Jul 17 11:25:47 2019
+# @author: sebas12
 
 
 ### Neccessary import statements
@@ -26,29 +24,28 @@ class team_stats_downloader:
 
     def get_data(self, season_year , *args , **kwargs):
         """
-        **Purpose:**
-        This function will download the .xls spreadsheet from from `Basketball-reference <Basketball-reference.com>`
-        for the specified year which contains team statistics PER 100 POSSESSIONS for all 30 teams in the NBA. 
-        After this, the file is moved to the desired location for future use.
+        :Purpose: This function will download the .xls spreadsheet from from `Basketball-reference 
+                  <Basketball-reference.com>`_ for the specified year which contains team statistics PER 100 
+                  POSSESSIONS for all 30 teams in the NBA.  After this, the file is moved to the desired location 
+                  for future use.
         
-        **Details:** 
-        See the Basketball-refence website for information about the headers of these spreadsheets.
+        :Details: See the Basketball-refence website for information about the headers of these spreadsheets.
         
-        **Arguments:**
         :type season_year: str
-            Describes the year that you wish the function to get data from. The format of this variable is 
-            'Start year - end year', i.e., '2018-19'.
+        :param season_year: Describes the year that you wish the function to get data from. The format of this 
+                            variable is 'Start year - end year', i.e., '2018-19'.
 
         :type args: None
-            Positional arguments that are included for potential use in future versions of this class.
+        :param args: Positional arguments that are included for potential use in future versions of this class.
 
         :type kwargs: None
-            Keyword arguments that allow the user to specify the path of the location that the function will move
-            the downloaded .xls spreadsheet to. If not specified, the function defaults to: ~/data/external/basketball_reference/Team_data/
+        :param kwargs: Keyword arguments that allow the user to specify the path of the location that the function 
+                       will move the downloaded .xls spreadsheet to. If not specified, the function defaults to: 
+                       ~/data/external/basketball_reference/Team_data/
         
-        **Useful Resources:**
-        1. `Basketball-reference Homepage <Basketball-reference.com>`
-        2. `Selenium Documentation. <https://www.seleniumhq.org/>`
+        :Useful Resources:
+        1. `Basketball-reference Homepage <Basketball-reference.com>`_
+        2. `Selenium Documentation. <https://www.seleniumhq.org/>`_
         """
         
         ### Get the data

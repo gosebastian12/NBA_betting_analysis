@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Wed Jul 17 11:25:47 2019
 
-@author: {sebas12}
-"""
+# Created on Wed Jul 17 11:25:47 2019
+# @author: sebas12
 
 
 ### Neccessary import statements
@@ -38,45 +36,35 @@ class game_results_downloader:
 
   def get_data(self, season_year, all_months = True, *args, **kwargs):
       """
-      **Purpose:**
-      This function will download boxscore .xls spreadsheets from `Basketball-reference <Basketball-reference.com>` 
-      of a given NBA season. After this, it will move each file to the desired directory. This is done by using
-      the web automation provided by the Selenium Python package as well as the os Python package.
+      :Purpose: This function will download boxscore .xls spreadsheets from `Basketball-reference <Basketball-reference.com>`_  of a given NBA season. After this, it will move each file to the desired directory. This is done by using the web automation provided by the Selenium Python package as well as the os Python package.
       
-      **Details:**
-      This function can only handle calls for one season.
+      :Details: This function can only handle calls for one season.
 
-      When the files are moved, they are moved into a new directory season_year and also renamed in the 
-      following way: {Month}_{season_year}.xls.
+                When the files are moved, they are moved into a new directory season_year and also renamed in the 
+                following way: {Month}_{season_year}.xls.
       
-      **Arguments:**
       :type season_year: str
-          Describes the year that you wish the function to get data from. The format of this variable is 
-          'Start year - end year', i.e., '2018-19'.
+      :param season_year: Describes the year that you wish the function to get data from. The format of this variable is 'Start year - end year', i.e., '2018-19'.
 
       :type all_months: Boolean, optional (default=True)
-          Determines whether or not the function will download data for every month of the specified season.
+      :param all_months: Determines whether or not the function will download data for every month of the specified season.
 
       :type args: None
-          Positional arguments that are included for potential use in future versions of this class.
+      :param args: Positional arguments that are included for potential use in future versions of this class.
 
       :type kwargs: str
-          Positional arguments that allow the user to specify the months to get data for (if all_months is set 
-          to False) and/or the final path for the spreadsheet. 
+      :param kwargs: Positional arguments that allow the user to specify the months to get data for (if all_months is set to False) and/or the final path for the spreadsheet. 
 
-          For specifying months, the keyword arguments themselves (i.e., month_one) is not what matters thanks 
-          to the way you iterate over dictionaries in Python, but what does matter is the values you set for 
-          them; they have to be strings of the months themselves with the first letter capitalized and the 
-          month(s) spelled out entirely and correctly.
+                     For specifying months, the keyword arguments themselves (i.e., month_one) is not what matters thanks to the way you iterate over dictionaries in Python, but what does matter is the values you set for them; they have to be strings of the months themselves with the first letter capitalized and the month(s) spelled out entirely and correctly.
 
-          To specify the final location of the downloaded spreadsheets, the user must use the keyword 'final_path'.
-          If this keyword is not given, the function will default to ~/data/external/basketball_reference/game_results/season_year/
+                     To specify the final location of the downloaded spreadsheets, the user must use the keyword 'final_path'.If this keyword is not given, the function will default to ~/data/external/basketball_reference/game_results/season_year/
           
       :returns: str telling the user that the downloading and relocation of files is complete.
       
-      **Useful Resources:**
-      1. `Basketball-reference Homepage <Basketball-reference.com>`
-      2. `Selenium Documentation. <https://www.seleniumhq.org/>`
+      :Useful Resources:
+
+      1. `Basketball-reference Homepage <Basketball-reference.com>`_
+      2. `Selenium Documentation. <https://www.seleniumhq.org/>`_
       """
       def sorted_nicely(l):
         """ Sorts the given iterable in the way that is expected. This function will be used below.
