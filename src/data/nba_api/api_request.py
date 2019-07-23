@@ -19,7 +19,7 @@ import pandas as pd
 ### Define Class
 class nba_stats_API:
 	"""
-	:Purpose: 
+	Hi
 
 	:Details:
 
@@ -55,192 +55,199 @@ class nba_stats_API:
 		self.last_url_called = None
 			# for future inspection
 		self.API_params = None
+		self.eaders_to_keep_dict = {'boxscoreadvancedv2' : [ "TEAM_ID" ,	
+													         "PLAYER_ID" ,
+														     "MIN" , 
+													         "E_OFF_RATING" , 
+													         "OFF_RATING" , 
+													         "E_DEF_RATING" , 
+													         "DEF_RATING" ,
+													         "E_NET_RATING" ,
+													    	 "NET_RATING" ,
+														     "AST_PCT" ,
+														     "AST_TOV" ,
+														     "AST_RATIO" ,
+														     "OREB_PCT" ,
+														     "DREB_PCT" ,
+														     "REB_PCT" ,
+														     "TM_TOV_PCT" ,
+														     "EFG_PCT" ,
+														     "TS_PCT" ,
+														     "USG_PCT" ,
+														     "E_USG_PCT" ,
+														     "E_PACE" ,
+														     "PACE" ,
+														     "PIE" ] ,
+									'boxscorefourfactorsv2' : ["TEAM_ID" , 
+															   "PLAYER_ID" ,
+															   "FTA_RATE",
+															   "OPP_EFG_PCT",
+															   "OPP_FTA_RATE",
+															   "OPP_TOV_PCT",
+															   "OPP_OREB_PCT"] , 
+									'boxscoremiscv2' : [ "TEAM_ID" ,
+													     "PLAYER_ID" ,
+													     "PTS_OFF_TOV" ,
+													     "PTS_2ND_CHANCE" ,
+													     "PTS_FB" ,
+													     "PTS_PAINT" ,
+													     "OPP_PTS_OFF_TOV" ,
+													     "OPP_PTS_2ND_CHANCE" ,
+													     "OPP_PTS_FB" ,
+													     "OPP_PTS_PAINT" ,
+													     "BLK" ,
+													     "BLKA" ,
+													     "PF" , 
+													     "PFD" ] ,
+									'boxscorescoringv2' : [ "TEAM_ID" , 
+															"PLAYER_ID" ,
+															"PCT_FGA_2PT" ,
+															"PCT_FGA_3PT" ,
+															"PCT_PTS_2PT" ,
+															"PCT_PTS_2PT_MR" ,
+															"PCT_PTS_3PT" ,
+															"PCT_PTS_FB" ,
+															"PCT_PTS_FT" ,
+															"PCT_PTS_OFF_TOV" ,
+															"PCT_PTS_PAINT" ,
+															"PCT_AST_2PM" ,
+															"PCT_UAST_2PM" ,
+															"PCT_AST_3PM" ,
+															"PCT_UAST_3PM" ,
+															"PCT_AST_FGM" ,
+															"PCT_UAST_FGM" ] , 
+									'boxscoretraditionalv2' : [ "TEAM_ID" , 
+														        "PLAYER_ID" ,
+														        "FGM" , 
+														        "FGA" ,
+														        "FG_PCT" ,
+														        "FG3M" ,
+														        "FG3A" ,
+														        "FG3_PCT" ,
+														        "FTM" ,
+														        "FTA" ,
+														        "FT_PCT" ,
+														        "OREB" ,
+														        "DREB" ,
+														        "REB" ,
+														        "AST" ,
+														        "STL" ,
+														        "TO" ,
+														        "PTS" ,
+														        "PLUS_MINUS" ] ,
+									'boxscoreusagev2' : ["TEAM_ID" , 
+														 "PLAYER_ID" ,
+														 "PCT_FGM" ,
+														 "PCT_FGA" ,
+														 "PCT_FG3M" ,
+														 "PCT_FG3A" ,
+														 "PCT_FTM" ,
+														 "PCT_FTA" ,
+														 "PCT_OREB" ,
+														 "PCT_DREB" ,
+														 "PCT_REB" ,
+														 "PCT_AST" ,
+														 "PCT_TOV" ,
+														 "PCT_STL" ,
+														 "PCT_BLK" ,
+														 "PCT_BLKA" ,
+														 "PCT_PF" ,
+														 "PCT_PFD" , 
+														 "PCT_PTS" ]
+														     }
 		
 
 	def player_API_call(self, endpoint, return_format = 'DataFrame', sort_by_playerID = True, prune_player_data = True, keepIDs = True, *args, **kwargs):
 		"""
-		:Purpose: This function uses the SeleniumRequests Python package (see resource 1.) to perform an API GET
-				  request to the stats.nba.com API. After making the request, the function then performs some
-				  processing of the JSON output resulting in its output: the obtained data stored in a the
-				  data structure of the user's choice.
+		This function uses the SeleniumRequests Python package (see resource 1.) to perform an API GET request 
+		to the stats.nba.com API. After making the request, the function then performs some processing of the 
+		JSON output resulting in its output: the obtained data stored in a the data structure of the user's 
+		choice.
 
-		:Details: This function can only handle the following endpoints of the stats.nba.com API (the hyperlinks
-				  take you to the documentation of that endpoint):
-				  	1. `boxscoreadvancedv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md>`_
-				  	2. `boxscorefourfactorsv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscorefourfactorsv2.md>`_
-				  	3. `boxscoremiscv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoremiscv2.md>`_
-				  	4. `boxscorescoringv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscorescoringv2.md>`_
-				  	5. `boxscoretraditionalv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoretraditionalv2.md>`_
-				  	6. `boxscoreusagev2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreusagev2.md>`_
-				  Trying to use this function for another endpoint will result in the function not making any calls.
 
-				  All of the endpoint parameters are specified by using the **kwargs functionality of this 
-				  function. For most, the only required parameter is :code: GameID. Not passing in the other 
-				  parameters will result in them being set to their default values.
+		Parameters
+		--------
+			endpoint - *str*
+				Specifies which endpoint of the stats.nba.com API to make GET request to. See the details section for 
+				valid values. 
 
-		:type endpoint: str
-		:param endpoint: Specifies which endpoint of the stats.nba.com API to make GET request to. See the 
-						 details section for valid values. 
+				The values of this parameter are not case-sensitive.
 
-						 The values of this parameter are not case-sensitive.
+			return_format - *str* (optional, default = 'DataFrame')
+				Specifies which data structure the function will organize the obtained data in. Valid values for this 
+				variable are 'DataFrame' (returns the data in Pandas DataFrames), 'Array' (returns the data in NumPy 
+				arrays), and 'List' (returns thedata in Python lists).
 
-		:type return_format: str (Default 'DataFrame')
-		:param return_format: Specifies which data structure the function will organize the obtained data in. 
-							  Valid values for this variable are 'DataFrame' (returns the data in Pandas 
-							  DataFrames), 'Array' (returns the data in NumPy arrays), and 'List' (returns the
-							  data in Python lists).
+				The values of this parameter are not case-sensitive.
 
-							  The values of this parameter are not case-sensitive.
+			sort_by_playerID - *bool* (optional, default = True)
+				Determines whether or not the data structures giving the player statistics will be sorted by the 
+				playerIDs which may be useful in future use of the obtained data.
 
-		:type sort_by_playerID: Boolean (Default True)
-		:param sort_by_playerID: Determines whether or not the data structures giving the player statistics will
-								 be sorted by the playerIDs.
+			prune_player_data - *bool* (optional, default = True)
+				Determines whether or not the obtained data will be trimmed down to throw away information not relevent 
+				to this project.
 
-		:type prune_player_data: Boolean (Default True)
-		:param prune_player_data: Determines whether or not the obtained data will be trimmed down to throw away
-								  information not relevent to this project.
+			kwargs - *str*
+				Keyword arguments that allow the user to specify the parameters of the Endpoint that they are trying to 
+				obtain data. See the documentation for each endpoint (see Details section) for the neccessary parameters.
 
-		:type args: None
-		:param args: Positional arguments that are included for potential use in future versions of this function.
+				The values of the keywords ARE case sensitive.
 
-		:type kwargs: str
-		:param kwargs: Keyword arguments that allow the user to specify the parameters of the Endpoint that they
-					   are trying to obtain data. See the documentation for each endpoint (see Details section) 
-					   for the neccessary parameters.
 
-					   The values of the keywords ARE case sensitive.
+		Returns
+		-------
+			away_data - *DataFrame, Array, List*
+			home_data - *DataFrame, Array, List*
+			headers - *Array, List* (unless return_format = 'DataFrame')
+				The formats of these objects can one of the following three possibilities:
+			  	1. `Two pandas DataFrames <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`_
+			  		* 2D DataFrame representing the statistics of the players on the away team; rows 
+			  		  represent an individual player and columns represent a given statistic (given by the 
+			  		  column header).
+			  		* 2D DataFrame representing the statistics of the players on the home team; rows 
+			  		  represent an individual player and columns represent a given statistic (given by the 
+			  		  column header).
+			  	2. `Three NumPy arrays <https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html>`_
+			  		* 1D numpy array of the statistics column headers.
+			  		* 2D numpy array representing the statistics of the players on the away team; rows 
+			  		  represent an individual player and columns represent a given statistic.
+			  		* 2D numpy array representing the statistics of the players on the home team; rows 
+			  		  represent an individual player and columns represent a given statistic.
+			  	3. `Three Python lists <https://docs.python.org/3/tutorial/datastructures.html>`_
+			  		* 1D Python list of the statistics column headers.
+			  		* 2D Python list representing the statistics of the players on the away team; rows 
+			  		  represent an individual player and columns represent a given statistic.
+			  		* 2D Python list representing the statistics of the players on the home team; rows 
+			  		  represent an individual player and columns represent a given statistic.
 
-		:returns: tuple object containing organized data structures of the data obtained from the API. The  
-				  contents of that tuple will be one of the three possibilities:
-				  	1. `Two pandas DataFrames <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`_
-				  		* 2D DataFrame representing the statistics of the players on the away team; rows 
-				  		  represent an individual player and columns represent a given statistic (given by the 
-				  		  column header).
-				  		* 2D DataFrame representing the statistics of the players on the home team; rows 
-				  		  represent an individual player and columns represent a given statistic (given by the 
-				  		  column header).
-				  	2. `Three NumPy arrays <https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html>`_
-				  		* 1D numpy array of the statistics column headers.
-				  		* 2D numpy array representing the statistics of the players on the away team; rows 
-				  		  represent an individual player and columns represent a given statistic.
-				  		* 2D numpy array representing the statistics of the players on the home team; rows 
-				  		  represent an individual player and columns represent a given statistic.
-				  	3. `Three Python lists <https://docs.python.org/3/tutorial/datastructures.html>`_
-				  		* 1D Python list of the statistics column headers.
-				  		* 2D Python list representing the statistics of the players on the away team; rows 
-				  		  represent an individual player and columns represent a given statistic.
-				  		* 2D Python list representing the statistics of the players on the home team; rows 
-				  		  represent an individual player and columns represent a given statistic.
 
-		:Useful Resources: 1. `Selenium Requests Homepage <https://github.com/cryzed/Selenium-Requests>`_
-						   2. ` <>`_
+		Notes
+		--------
+			This function can only handle the following endpoints of the stats.nba.com API (the hyperlinks
+		    take you to the documentation of that endpoint):
+		      1. `boxscoreadvancedv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreadvancedv2.md>`_
+		  	  2. `boxscorefourfactorsv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscorefourfactorsv2.md>`_
+		  	  3. `boxscoremiscv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoremiscv2.md>`_
+		  	  4. `boxscorescoringv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscorescoringv2.md>`_
+		  	  5. `boxscoretraditionalv2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoretraditionalv2.md>`_
+		  	  6. `boxscoreusagev2 <https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/boxscoreusagev2.md>`_
+
+		    Trying to use this function for another endpoint will result in the function not making any calls.
+
+		    All of the endpoint parameters are specified by using the **kwargs functionality of this 
+		    function. For most, the only required parameter is :code: GameID. Not passing in the other 
+		    parameters will result in them being set to their default values.
+
+		See Also:
+		--------
+			1. `Selenium Requests Homepage <https://github.com/cryzed/Selenium-Requests>`_
 		"""
 		### make endpoint case-insensitive 
 		endpoint = endpoint.lower()
 
-		headers_to_keep_dict = {'boxscoreadvancedv2' : [ "TEAM_ID" ,	
-												         "PLAYER_ID" ,
-													     "MIN" , 
-												         "E_OFF_RATING" , 
-												         "OFF_RATING" , 
-												         "E_DEF_RATING" , 
-												         "DEF_RATING" ,
-												         "E_NET_RATING" ,
-												    	 "NET_RATING" ,
-													     "AST_PCT" ,
-													     "AST_TOV" ,
-													     "AST_RATIO" ,
-													     "OREB_PCT" ,
-													     "DREB_PCT" ,
-													     "REB_PCT" ,
-													     "TM_TOV_PCT" ,
-													     "EFG_PCT" ,
-													     "TS_PCT" ,
-													     "USG_PCT" ,
-													     "E_USG_PCT" ,
-													     "E_PACE" ,
-													     "PACE" ,
-													     "PIE" ] ,
-								'boxscorefourfactorsv2' : ["TEAM_ID" , 
-														   "PLAYER_ID" ,
-														   "FTA_RATE",
-														   "OPP_EFG_PCT",
-														   "OPP_FTA_RATE",
-														   "OPP_TOV_PCT",
-														   "OPP_OREB_PCT"] , 
-								'boxscoremiscv2' : [ "TEAM_ID" ,
-												    "PLAYER_ID" ,
-												    "PTS_OFF_TOV" ,
-												    "PTS_2ND_CHANCE" ,
-												    "PTS_FB" ,
-												    "PTS_PAINT" ,
-												    "OPP_PTS_OFF_TOV" ,
-												    "OPP_PTS_2ND_CHANCE" ,
-												    "OPP_PTS_FB" ,
-												    "OPP_PTS_PAINT" ,
-												    "BLK" ,
-												    "BLKA" ,
-												    "PF" , 
-												    "PFD" ] ,
-								'boxscorescoringv2' : [ "TEAM_ID" , 
-														"PLAYER_ID" ,
-														"PCT_FGA_2PT" ,
-														"PCT_FGA_3PT" ,
-														"PCT_PTS_2PT" ,
-														"PCT_PTS_2PT_MR" ,
-														"PCT_PTS_3PT" ,
-														"PCT_PTS_FB" ,
-														"PCT_PTS_FT" ,
-														"PCT_PTS_OFF_TOV" ,
-														"PCT_PTS_PAINT" ,
-														"PCT_AST_2PM" ,
-														"PCT_UAST_2PM" ,
-														"PCT_AST_3PM" ,
-														"PCT_UAST_3PM" ,
-														"PCT_AST_FGM" ,
-														"PCT_UAST_FGM" ] , 
-								'boxscoretraditionalv2' : [ "TEAM_ID" , 
-													        "PLAYER_ID" ,
-													        "FGM" , 
-													        "FGA" ,
-													        "FG_PCT" ,
-													        "FG3M" ,
-													        "FG3A" ,
-													        "FG3_PCT" ,
-													        "FTM" ,
-													        "FTA" ,
-													        "FT_PCT" ,
-													        "OREB" ,
-													        "DREB" ,
-													        "REB" ,
-													        "AST" ,
-													        "STL" ,
-													        "TO" ,
-													        "PF" ,
-													        "PTS" ,
-													        "PLUS_MINUS" ] ,
-								'boxscoreusagev2' : ["TEAM_ID" , 
-													 "PLAYER_ID" ,
-													 "PCT_FGM" ,
-													 "PCT_FGA" ,
-													 "PCT_FG3M" ,
-													 "PCT_FG3A" ,
-													 "PCT_FTM" ,
-													 "PCT_FTA" ,
-													 "PCT_OREB" ,
-													 "PCT_DREB" ,
-													 "PCT_REB" ,
-													 "PCT_AST" ,
-													 "PCT_TOV" ,
-													 "PCT_STL" ,
-													 "PCT_BLK" ,
-													 "PCT_BLKA" ,
-													 "PCT_PF" ,
-													 "PCT_PFD" , 
-													 "PCT_PTS" ]
-													     }
 		try:
-			headers_to_keep_dict[endpoint]
+			self.headers_to_keep_dict[endpoint]
 		except KeyError:
 			return "Invalid endpoint given. See the details section of this method's docstring for valid endpoints."
 
@@ -296,7 +303,7 @@ class nba_stats_API:
 			player_stats = data_dict['rowSet']
 
 			if prune_player_data:
-				headers_to_keep = headers_to_keep_dict[endpoint] # this was determined beforehand.
+				headers_to_keep = self.headers_to_keep_dict[endpoint] # this was determined beforehand.
 				# define what we will keep
 				indices_to_keep = []
 				for kept_header in headers_to_keep:
@@ -346,7 +353,7 @@ class nba_stats_API:
 
 	def team_API_call(self, endpoint , *args, **kwargs):
 		"""
-		:Purpose: 
+		Hi
 
 		:Details:
 
@@ -368,7 +375,7 @@ class nba_stats_API:
 
 	def close_driver(self, *args, **kwargs):
 		"""
-		:Purpose: 
+		Hi
 
 		:Details:
 
@@ -387,7 +394,7 @@ class nba_stats_API:
 
 	def player_compiler(self, GameID, *args, **kwargs):
 		"""
-		:Purpose: 
+		Hi
 
 		:Details:
 
