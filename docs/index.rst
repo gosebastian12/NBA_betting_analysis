@@ -16,6 +16,9 @@ Contents:
 .. automodule:: get_game_results.game_results_downloader
    :members:
 
+.. automodule:: api_request.nba_stats_API
+   :members:
+
 .. toctree::
    :maxdepth: 2
 
