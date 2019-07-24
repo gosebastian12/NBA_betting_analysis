@@ -38,17 +38,17 @@ class nba_stats_API:
 	Parameters
 	--------
 
-	web_browser - *str* (default = 'Chrome')
-		Indicates to the class which webdriver to use when making its various GET requests. The available options
-		are (notice that the options are not case-sensitive):
-		  - 'chrome'
-		  - 'firefox'
-		  - 'opera'
-		  - 'phantomjs'
-		  - 'safari'
+		web_browser - *str* (default = 'Chrome')
+			Indicates to the class which webdriver to use when making its various GET requests. The available options
+			are (notice that the options are not case-sensitive):
+			  - 'chrome'
+			  - 'firefox'
+			  - 'opera'
+			  - 'phantomjs'
+			  - 'safari'
 
-	webdriver_path - *str (default = '/Users/sebas12/Downloads/chromedriver')
-		Indicates to the function the location of the executable for the the webdriver on the user's machine.
+		webdriver_path - *str (default = '/Users/sebas12/Downloads/chromedriver')
+			Indicates to the function the location of the executable for the the webdriver on the user's machine.
 
 
 	See Also
@@ -212,7 +212,7 @@ class nba_stats_API:
 		pass
 		
 
-	def player_API_call(self, endpoint, return_format = 'DataFrame', sort_by_playerID = True, prune_data = True, keepIDs = True, *args, **kwargs):
+	def player_API_call(self, endpoint, return_format = 'DataFrame', sort_by_playerID = True, prune_data = True, keepIDs = True, print_url = True, *args, **kwargs):
 		"""
 		This function uses the SeleniumRequests Python package (see resource 1.) to perform an API GET request 
 		to the stats.nba.com API. After making the request, the function then performs some processing of the 
@@ -248,6 +248,9 @@ class nba_stats_API:
 				Determines whether or not the playerIDs and teamIDS will remain in the final data structures that
 				this function outputs.
 
+			print_url - *bool* (optional, default = True)
+				D
+
 			kwargs - *str*
 				Keyword arguments that allow the user to specify the parameters of the Endpoint that they are trying to 
 				obtain data. See the documentation for each endpoint (see Details section) for the neccessary parameters.
@@ -258,28 +261,28 @@ class nba_stats_API:
 		Returns
 		-------
 
-			away_data - *DataFrame, Array, List*
-			home_data - *DataFrame, Array, List*
+			first_team_data - *DataFrame, Array, List*
+			second_team_data - *DataFrame, Array, List*
 			headers - *Array, List* (unless return_format = 'DataFrame')
 				The formats of these objects can one of the following three possibilities:
 			  	1. `Two pandas DataFrames <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.html>`_
-			  		* 2D DataFrame representing the statistics of the players on the away team; rows 
+			  		* 2D DataFrame representing the statistics of the players on the first team; rows 
 			  		  represent an individual player and columns represent a given statistic (given by the 
 			  		  column header).
-			  		* 2D DataFrame representing the statistics of the players on the home team; rows 
+			  		* 2D DataFrame representing the statistics of the players on the second team; rows 
 			  		  represent an individual player and columns represent a given statistic (given by the 
 			  		  column header).
 			  	2. `Three NumPy arrays <https://docs.scipy.org/doc/numpy/reference/generated/numpy.array.html>`_
 			  		* 1D numpy array of the statistics column headers.
-			  		* 2D numpy array representing the statistics of the players on the away team; rows 
+			  		* 2D numpy array representing the statistics of the players on the first team; rows 
 			  		  represent an individual player and columns represent a given statistic.
-			  		* 2D numpy array representing the statistics of the players on the home team; rows 
+			  		* 2D numpy array representing the statistics of the players on the second team; rows 
 			  		  represent an individual player and columns represent a given statistic.
 			  	3. `Three Python lists <https://docs.python.org/3/tutorial/datastructures.html>`_
 			  		* 1D Python list of the statistics column headers.
-			  		* 2D Python list representing the statistics of the players on the away team; rows 
+			  		* 2D Python list representing the statistics of the players on the first team; rows 
 			  		  represent an individual player and columns represent a given statistic.
-			  		* 2D Python list representing the statistics of the players on the home team; rows 
+			  		* 2D Python list representing the statistics of the players on the second team; rows 
 			  		  represent an individual player and columns represent a given statistic.
 
 
@@ -353,7 +356,8 @@ class nba_stats_API:
 
 		# if successful, format and return the data.
 		if requests_obj.status_code == 200:
-			print('Request to {} was successful.'.format(self.last_url_called))
+			if print_url:
+				print('Request to {} was successful.'.format(self.last_url_called))
 
 			data_dict = requests_obj.json()['resultSets'][0]
 				# the format of the json object that we get from our GET request is a dictionary with keys
@@ -380,32 +384,32 @@ class nba_stats_API:
 				team_ID_index = 1
 				player_ID_index = 4
 
-			# seperate away (listed first) and home players (listed_last)
-			away_teamID = player_stats[0][team_ID_index]
-			home_teamID = player_stats[-1][team_ID_index]
+			# seperate the two teams
+			first_teamID = player_stats[0][team_ID_index]
+			second_teamID = player_stats[-1][team_ID_index]
 
-			away_player_stats = [player for player in player_stats if player[team_ID_index] == away_teamID]
-			home_player_stats = [player for player in player_stats if player[team_ID_index] == home_teamID]
+			first_player_stats = [player for player in player_stats if player[team_ID_index] == first_teamID]
+			second_player_stats = [player for player in player_stats if player[team_ID_index] == second_teamID]
 
 			# order each list by player ids for convience later on (if the user desires).
 			if sort_by_playerID:
-				print(away_player_stats)
-				print(home_player_stats)
-				away_player_stats = sorted(away_player_stats , key = lambda x: x[player_ID_index])
-				home_player_stats = sorted(home_player_stats , key = lambda x: x[player_ID_index])
+				print(first_player_stats)
+				print(second_player_stats)
+				first_player_stats = sorted(first_player_stats , key = lambda x: x[player_ID_index])
+				second_player_stats = sorted(second_player_stats , key = lambda x: x[player_ID_index])
 			
 			# determine how to output the obtained data
 			if return_format.lower() == "dataframe":
-				away_df = pd.DataFrame(away_player_stats, columns = stat_headers)
-				home_df = pd.DataFrame(home_player_stats, columns = stat_headers)
+				first_df = pd.DataFrame(first_player_stats, columns = stat_headers)
+				second_df = pd.DataFrame(second_player_stats, columns = stat_headers)
 				if not keepIDs:
-					away_df = away_df.drop( ["TEAM_ID" , "PLAYER_ID"] , axis = 1 )
-					home_df = home_df.drop( ["TEAM_ID" , "PLAYER_ID"] , axis = 1 )
-				return away_df , home_df
+					first_df = first_df.drop( ["TEAM_ID" , "PLAYER_ID"] , axis = 1 )
+					second_df = second_df.drop( ["TEAM_ID" , "PLAYER_ID"] , axis = 1 )
+				return first_df , second_df
 			if return_format.lower() == "array":
-				return np.array(stat_headers), np.array(away_player_stats), np.array(home_player_stats) 
+				return np.array(stat_headers), np.array(first_player_stats), np.array(second_player_stats) 
 			if return_format.lower() == "list":
-				return stat_headers , away_player_stats , home_player_stats
+				return stat_headers , first_player_stats , second_player_stats
 			else:
 				return "Invaid data format requested. Valid values are dataframe, array, and list."
 
@@ -414,7 +418,7 @@ class nba_stats_API:
 																					  requests_obj.status_code )
 
 
-	def team_API_call(self, endpoint, return_format = 'DataFrame', prune_data = True, keepIDs = True, *args, **kwargs):
+	def team_API_call(self, endpoint, return_format = 'DataFrame', prune_data = True, keepIDs = True, print_url = True, pd_index = 0, *args, **kwargs):
 		"""
 		Hi
 
@@ -450,10 +454,19 @@ class nba_stats_API:
 				Determines whether or not the playerIDs and teamIDS will remain in the final data structures that
 				this function outputs.
 
+			print_url - *bool* (optional, default = True)
+				D
+
+			pd_index - *int* (default = 0)
+				function
+
 
 		Returns
 		--------
-
+			first_data - *DataFrame, Array, List*
+				f
+			second_data = *DataFrame, Array, List*
+				f
 		"""
 		### make endpoint case-insensitive 
 		endpoint = endpoint.lower()
@@ -502,7 +515,8 @@ class nba_stats_API:
 
 		# if successful, format and return the data.
 		if requests_obj.status_code == 200:
-			print('Request to {} was successful.'.format(self.last_url_called))
+			if print_url:
+				print('Request to {} was successful.'.format(self.last_url_called))
 
 			data_dict = requests_obj.json()['resultSets'][1]
 			stat_headers = data_dict['headers']
@@ -524,22 +538,26 @@ class nba_stats_API:
 			else:
 				team_ID_index = 1
 
-			# seperate away (listed first) and home teams (listed last)
-			away_team_stats = team_stats[0]
-			home_team_stats = team_stats[1]
+			# seperate the two teams
+			first_team_stats = team_stats[0]
+			second_team_stats = team_stats[1]
 
 			# determine how to output the obtained data
 			if return_format.lower() == "dataframe":
-				away_df = pd.DataFrame( np.array(away_team_stats).reshape(1 , -1) , columns = stat_headers )
-				home_df = pd.DataFrame( np.array(home_team_stats).reshape(1 , -1) , columns = stat_headers)
+				first_df = pd.DataFrame( np.array(first_team_stats).reshape(1 , -1) , 
+										columns = stat_headers ,
+										index = [pd_index] ) 
+				second_df = pd.DataFrame( np.array(second_team_stats).reshape(1 , -1) , 
+										columns = stat_headers , 
+										index = [pd_index])
 				if not keepIDs:
-					away_df = away_df.drop("TEAM_ID" , axis = 1 )
-					home_df = home_df.drop("TEAM_ID" , axis = 1 )
-				return away_df , home_df
+					first_df = first_df.drop("TEAM_ID" , axis = 1 )
+					second_df = second_df.drop("TEAM_ID" , axis = 1 )
+				return first_df , second_df
 			if return_format.lower() == "array":
-				return np.array(stat_headers), np.array(away_team_stats), np.array(home_team_stats) 
+				return np.array(stat_headers), np.array(first_team_stats), np.array(second_team_stats) 
 			if return_format.lower() == "list":
-				return stat_headers , away_team_stats , home_team_stats
+				return stat_headers , first_team_stats , second_team_stats
 			else:
 				return "Invaid data format requested. Valid values are dataframe, array, and list."
 
@@ -548,7 +566,7 @@ class nba_stats_API:
 			return 'Request to {} was not successful. \n Status code is: {}.'.format( self.last_url_called , 
 																					  requests_obj.status_code )
 
-	def game_data_compiler(self, GameID, player_data = True, *args, **kwargs):
+	def game_data_compiler(self, GameID, player_data = True, pd_index = 0, print_url = True, *args, **kwargs):
 		"""
 		Make several calls to the NBA API and concatenate the resulting outputs in order to have a single data 
 		structure that contains all of the information we need to train our neual networks.
@@ -557,26 +575,32 @@ class nba_stats_API:
 		Parameters
 		--------
 
-		GameID - *str*
-			The GameID parameter of the game that we wish to obtain boxscore data for from the NBA Stats API.
+			GameID - *str*
+				The GameID parameter of the game that we wish to obtain boxscore data for from the NBA Stats API.
 
-		player_data - *bool* (default = True)
-			Determines whether or not we will compile all of the player or team data from a specified game. Team
-			data will be compiled when player_data = False and player data otherwise.
+			player_data - *bool* (default = True)
+				Determines whether or not we will compile all of the player or team data from a specified game. Team
+				data will be compiled when player_data = False and player data otherwise.
 
-		kwargs - *list of strings*
-			Keyword arguments that allow the user 
+			pd_index - *int* (default = 0)
+				f
+
+			print_url - *bool* (optional, default = True)
+				D
+
+			kwargs - *list of strings*
+				Keyword arguments that allow the user 
 		
 
 		Returns 
 		--------
-		final_away_df - *DataFrame*
-		final_home_df - *DataFrame*
+			final_first_df - *DataFrame*
+			final_second_df - *DataFrame*
 		"""
-		away_dfs_list = []
-		home_dfs_list = []
+		first_dfs_list = []
+		second_dfs_list = []
 		if kwargs:
-			endpoints = kwargs.values()
+			endpoints = list(kwargs.values())
 		else:
 			endpoints = [ 'boxscoreadvancedv2' , 
 						  'boxscorefourfactorsv2' , 
@@ -588,28 +612,30 @@ class nba_stats_API:
 		if player_data: # compiling player data for the specified game
 			for box_index , boxscore in enumerate(endpoints):
 				if box_index == 0:
-					away_df , home_df = self.player_API_call(endpoint = boxscore, GameID = GameID , keepIDs = True)
+					first_df , second_df = self.player_API_call(endpoint = boxscore, GameID = GameID , keepIDs = True, print_url = print_url)
 				else:
-					away_df , home_df = self.player_API_call(endpoint = boxscore, GameID = GameID, keepIDs = False)
-				away_dfs_list.append(away_df)
-				home_dfs_list.append(home_df)
+					first_df , second_df = self.player_API_call(endpoint = boxscore, GameID = GameID, keepIDs = False, print_url = print_url)
+				first_dfs_list.append(first_df)
+				second_dfs_list.append(second_df)
 
-			final_away_df = pd.concat(away_dfs_list , axis = 1)
-			final_home_df = pd.concat(home_dfs_list , axis = 1)
+			final_first_df = pd.concat(first_dfs_list , axis = 1)
+			final_second_df = pd.concat(second_dfs_list , axis = 1)
 
 		else: # compiling team data for the specified game
 			for box_index , boxscore in enumerate(endpoints):
 				if box_index == 0:
-					away_df , home_df = self.team_API_call(endpoint = boxscore, GameID = GameID, keepIDs = True)
+					first_df , second_df = self.team_API_call(endpoint = boxscore, GameID = GameID, keepIDs = True, pd_index = pd_index, print_url = print_url)
 				else:
-					away_df , home_df = self.team_API_call(endpoint = boxscore, GameID = GameID, keepIDs = False)
-				away_dfs_list.append(away_df)
-				home_dfs_list.append(home_df)
+					first_df , second_df = self.team_API_call(endpoint = boxscore, GameID = GameID, keepIDs = False, pd_index = pd_index, print_url = print_url)
+					first_df = first_df.drop("GAME_ID" , axis = 1)
+					second_df = second_df.drop("GAME_ID" , axis = 1)
+				first_dfs_list.append(first_df)
+				second_dfs_list.append(second_df)
 
-			final_away_df = pd.concat(away_dfs_list , axis = 1)
-			final_home_df = pd.concat(home_dfs_list , axis = 1)
+			final_first_df = pd.concat(first_dfs_list , axis = 1)
+			final_second_df = pd.concat(second_dfs_list , axis = 1)
 
-		return final_away_df , final_home_df
+		return final_first_df , final_second_df
 
 	def season_data_compiler(self, season_year, team_abbreviation, give_player_data = False, *args, **kwargs):
 		"""
@@ -618,44 +644,38 @@ class nba_stats_API:
 
 		Parameters
 		--------
-		season_year - *str*
-			f
+			season_year - *str*
+				f
 
-		team_abbreviation - *str*
-			f
+			team_abbreviation - *str*
+				f
 
-		give_player_data - *bool*
-			f
+			give_player_data - *bool*
+				f
 
 
 		Returns 
 		--------
-		season_df - *DataFrame*
-			f
+			season_df - *DataFrame*
+				f
 		"""
 		### Make API request to teamgamelog endpoint to get gameIDs for specified team's season to easily get
 		### all of the season data.
-		api_url = self.base_url + 'teamgamelog?SeasonType=Regular+Season&Season={}&TeamID={}'.format(season_year , self.teamIDS_dict[team_abbreviation])
+		teamID = self.teamIDS_dict[team_abbreviation]
+
+		api_url = self.base_url + 'teamgamelog?SeasonType=Regular+Season&Season={}&TeamID={}'.format(season_year , teamID)
 		self.API_params = { 'Season' : season_year , 
 							'SeasonType' : 'Regular+Season&Season' , 
-							'TeamID' : self.teamIDS_dict[team_abbreviation] }
+							'TeamID' : teamID }
 
 		response_obj = self.driver.request('GET' , api_url)
 		self.last_url_called = api_url
 
 		if response_obj.status_code == 200:
 			print('Request to {} was successful.'.format(self.last_url_called))
-			data_dict = response_obj.json()['resultSets'][0]
 
-			season_headers = data_dict['headers']
-			season_data = data_dict['rowSet']
-
-			headers_to_keep = ['Game_ID' , 'MATCHUP']
-			indices_to_keep = []
-			for kept_header in headers_to_keep:
-				indices_to_keep.append(season_headers.index(kept_header))
-			for list_index, game in enumerate(season_data):
-				season_data[list_index] = [game[i] for i in indices_to_keep]
+			season_data = response_obj.json()['resultSets'][0]['rowSet']
+			gameIDs = np.array(season_data)[:,1].tolist()			
 
 		else:
 			return 'Request to the teamgamelog endpoint failed with status code: {}. \n Attemped URL was: {}'.format(response_obj.status_code , self.last_url_called)
@@ -666,16 +686,25 @@ class nba_stats_API:
 
 		else:
 			team_dfs_list = []
-			for gameID, matchup in season_data:
-				# determine whether the game was a home or away one for the specified team.
-				if matchup[4] == 'v':
-					game_index = 1
-				elif matchup[4] == '&':
-					game_index = 0
-
-				# make the API call for the game
-				game_df = self.game_data_compiler(GameID = gameID , player_data = False)[game_index]
+			for game_number , gameID in enumerate(gameIDs):
+				# make the API call for the game (we DO NOT need data from the usage boxscore endpoint for teams
+				# beacuse the values for all of them are 1). Do need to download (and eventually give the neural
+				# network) more information if we don't need it. Especially since this will mean 82 less runs of
+				# the team_API_call method above speeding up the compilation process!
+				dfs_tuple = self.game_data_compiler( GameID = gameID , 
+													 player_data = False, 
+													 pd_index = game_number, 
+													 print_url = False,
+													 endpoint_one = 'boxscoreadvancedv2' , 
+						  							 endpoint_two = 'boxscorefourfactorsv2' , 
+						  							 endpoint_three = 'boxscoremiscv2' , 
+						  							 endpoint_four = 'boxscorescoringv2' , 
+						  							 endpoint_five = 'boxscoretraditionalv2' )
+				for df in dfs_tuple:
+					if df.iloc[0]['TEAM_ID'] == teamID:
+						game_df = df 
 				team_dfs_list.append(game_df)
+				print('   Compiled data from {}/82 games'.format(game_number+1))
 
 			season_df = pd.concat(team_dfs_list , axis = 0)
 
@@ -688,7 +717,7 @@ class nba_stats_API:
 		"""
 		self.driver.quit()
 		pass
-			
+
 ### Execute
 if __name__ == '__main__':
 	print("Running script directly.")
