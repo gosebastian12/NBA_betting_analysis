@@ -15,6 +15,7 @@ from seleniumrequests import Chrome, Firefox, Opera, PhantomJS, Safari
 	# requests while at the same time getting the headers we need so we don't have to look for them myself. In 
 	# the end, this package is much more reliable than requests with the NBA stats API.
 import pandas as pd
+from time import sleep
 
 ### Define Class
 class nba_stats_API:
@@ -54,13 +55,14 @@ class nba_stats_API:
 	See Also
 	--------
 	1. `Selenium Requests Homepage <https://github.com/cryzed/Selenium-Requests>`_
+	2. `Saving Pandas DataFrames <https://stackoverflow.com/questions/37010212/what-is-the-fastest-way-to-upload-a-big-csv-file-in-notebook-to-work-with-python>`_
 	"""
 	def __init__(self, web_browser = 'Chrome', webdriver_path = '/Users/sebas12/Downloads/chromedriver', *args, **kwargs):
 		# instantiate the web browser that will be used in this function.
 		if web_browser.lower() == 'chrome':
 			self.driver = Chrome(webdriver_path)
 		elif web_browser.lower() == 'firefox':
-			self.driver = FireFox(webdriver_path)
+			self.driver = Firefox(webdriver_path)
 		elif web_browser.lower() == 'opera':
 			self.driver == Opera(webdriver_path)
 		elif web_browser.lower() == 'phantomjs':
@@ -68,6 +70,7 @@ class nba_stats_API:
 		elif web_browser.lower() == 'safari':
 			self.driver = Safari(webdriver_path)
 
+		self.driver.set_script_timeout(15)
 		self.base_url = kwargs.get('base_url' , 'https://stats.nba.com/stats/')
 			# for future convinence.
 		self.last_url_called = None
@@ -347,7 +350,7 @@ class nba_stats_API:
 
 		# define the URL and make the request
 		kwargs_list = []
-		_ = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
+		dummy_var = [ kwargs_list.extend( [i[0] , i[1]] ) for i in list(self.API_params.items()) ]
 		param_string = len(self.API_params)*'{}={}&'
 
 		api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
@@ -393,8 +396,6 @@ class nba_stats_API:
 
 			# order each list by player ids for convience later on (if the user desires).
 			if sort_by_playerID:
-				print(first_player_stats)
-				print(second_player_stats)
 				first_player_stats = sorted(first_player_stats , key = lambda x: x[player_ID_index])
 				second_player_stats = sorted(second_player_stats , key = lambda x: x[player_ID_index])
 			
@@ -510,7 +511,14 @@ class nba_stats_API:
 		param_string = len(self.API_params)*'{}={}&'
 
 		api_url = self.base_url + '{}?'.format(endpoint) + param_string.format(*kwargs_list)
-		requests_obj = self.driver.request('GET' , api_url)
+		finished = 0
+		while finished == 0:
+			try:
+				requests_obj = self.driver.request('GET' , api_url)
+				finished = 1
+			except:
+
+				sleep(5)
 		self.last_url_called = api_url
 
 		# if successful, format and return the data.
@@ -612,7 +620,7 @@ class nba_stats_API:
 		if player_data: # compiling player data for the specified game
 			for box_index , boxscore in enumerate(endpoints):
 				if box_index == 0:
-					first_df , second_df = self.player_API_call(endpoint = boxscore, GameID = GameID , keepIDs = True, print_url = print_url)
+					first_df , second_df = self.player_API_call(endpoint = boxscore, GameID = GameID, keepIDs = True, print_url = print_url)
 				else:
 					first_df , second_df = self.player_API_call(endpoint = boxscore, GameID = GameID, keepIDs = False, print_url = print_url)
 				first_dfs_list.append(first_df)
@@ -637,7 +645,7 @@ class nba_stats_API:
 
 		return final_first_df , final_second_df
 
-	def season_data_compiler(self, season_year, team_abbreviation, give_player_data = False, *args, **kwargs):
+	def season_data_compiler(self, season_year, team_abbreviation, give_player_data = True, *args, **kwargs):
 		"""
 		Hi
 		
@@ -658,6 +666,13 @@ class nba_stats_API:
 		--------
 			season_df - *DataFrame*
 				f
+
+
+		See Also
+		--------
+		1. `Pandas Concat Function Documentation <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.concat.html>`_
+		2. `Concatenation of 2D Pandas DataFrames <https://jakevdp.github.io/PythonDataScienceHandbook/03.06-concat-and-append.html>`_
+		3. `Dealing with hierarchical Pandas DataFrames <https://jakevdp.github.io/PythonDataScienceHandbook/03.05-hierarchical-indexing.html>`_
 		"""
 		### Make API request to teamgamelog endpoint to get gameIDs for specified team's season to easily get
 		### all of the season data.
@@ -680,20 +695,33 @@ class nba_stats_API:
 		else:
 			return 'Request to the teamgamelog endpoint failed with status code: {}. \n Attemped URL was: {}'.format(response_obj.status_code , self.last_url_called)
 
-		### Now use season_data 2D list to iterate over all of the games in a 
+		### Now use gameIDs list to iterate over all of the games in the specified season to get the desired data.
 		if give_player_data:
-			pass
+			player_dfs_list = []
+			for game_index , gameID in enumerate(gameIDs[:3:]):
+				dfs_tuple = self.game_data_compiler( GameID = gameID , 
+													 player_data = True,  
+													 print_url = False )
+				for df in dfs_tuple:
+					if str(df.iloc[0]['TEAM_ID']) == teamID:
+						game_df = df
+				player_dfs_list.append(game_df)
+				print('\tCompiled data from {}/82 games'.format(game_index+1))
+
+			season_df = pd.concat(player_dfs_list , keys = list( range(len(player_dfs_list)) ))
+
+			return season_df
 
 		else:
 			team_dfs_list = []
-			for game_number , gameID in enumerate(gameIDs):
-				# make the API call for the game (we DO NOT need data from the usage boxscore endpoint for teams
-				# beacuse the values for all of them are 1). Do need to download (and eventually give the neural
+			for game_index , gameID in enumerate(gameIDs):
+				# make the API call for the game. We DO NOT need data from the usage boxscore endpoint for teams
+				# beacuse the values for all of them are 1. No need to download (and eventually give the neural
 				# network) more information if we don't need it. Especially since this will mean 82 less runs of
 				# the team_API_call method above speeding up the compilation process!
 				dfs_tuple = self.game_data_compiler( GameID = gameID , 
 													 player_data = False, 
-													 pd_index = game_number, 
+													 pd_index = game_index, 
 													 print_url = False,
 													 endpoint_one = 'boxscoreadvancedv2' , 
 						  							 endpoint_two = 'boxscorefourfactorsv2' , 
@@ -702,9 +730,9 @@ class nba_stats_API:
 						  							 endpoint_five = 'boxscoretraditionalv2' )
 				for df in dfs_tuple:
 					if df.iloc[0]['TEAM_ID'] == teamID:
-						game_df = df 
-				team_dfs_list.append(game_df)
-				print('   Compiled data from {}/82 games'.format(game_number+1))
+						team_df = df
+					team_dfs_list.append(team_df)
+				print('\tCompiled data from {}/82 games'.format(game_index+1))
 
 			season_df = pd.concat(team_dfs_list , axis = 0)
 
@@ -720,4 +748,61 @@ class nba_stats_API:
 
 ### Execute
 if __name__ == '__main__':
+	# additional neccessary import statements.
+	import os
+
+	# message for the user.
 	print("Running script directly.")
+
+	# change to the directory where the file will be saved
+	final_path = os.path.abspath('../../../data/interim/team_data')
+	os.chdir(final_path)
+
+	# initial instantsiation of the class to get teams_list
+	api_caller = nba_stats_API()
+
+	# make years and teams list.
+	years_list = ['20{}-{}'.format(i , i+1) for i in range(18 , 9 , -1)] + ['2009-10'] + ['200{}-0{}'.format(i , i+1) for i in range(8 , 3 , -1)]
+	teams_list = list(api_caller.teamIDS_dict.keys())
+
+	# close driver. Will instantiate the class again below.
+	api_caller.close_driver()
+
+	# get the team data.
+	for year in years_list[:5:]:
+		print('Getting data for the {} season.'.format(year))
+		save_year = year[2:4] + year[5::]
+		starting_index = 13
+		ending_index = 25
+		team_iter_index = starting_index
+		if save_year == '1819':
+			for team in teams_list[starting_index::]:
+				# instantiate the class for each team because of timing out issues that lead to the webdriver getting
+				# hung up indefinetly (despite efforts to add time_out exceptions above...).
+				api_caller = nba_stats_API()
+				print('   Obtaining data for {} ({}/30)'.format(team , team_iter_index + 1))
+				team_df = api_caller.season_data_compiler( season_year = year, 
+														   team_abbreviation = team, 
+														   give_player_data = False )
+				if team_iter_index == 0:
+					team_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'w')
+				else:
+					team_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'a')
+				api_caller.close_driver()
+				team_iter_index += 1
+		else:
+			for team in teams_list:
+				# instantiate the class for each team because of timing out issues that lead to the webdriver getting
+				# hung up indefinetly (despite efforts to add time_out exceptions above...).
+				api_caller = nba_stats_API()
+				print('   Obtaining data for {} ({}/30)'.format(team , team_iter_index + 1))
+				team_df = api_caller.season_data_compiler( season_year = year, 
+														   team_abbreviation = team, 
+														   give_player_data = False )
+				if team_iter_index == 0:
+					team_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'w')
+				else:
+					team_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'a')
+				api_caller.close_driver()
+				team_iter_index += 1
+
