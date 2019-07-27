@@ -1,0 +1,22 @@
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Worksheet</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]--></head><body><table>
+   
+   <thead>      
+      <tr>
+         <th aria-label="Date" data-stat="date_game" scope="col" class=" poptip sort_default_asc left">Date</th>
+         <th aria-label="Start (ET)" data-stat="game_start_time" scope="col" class=" poptip center">Start (ET)</th>
+         <th aria-label="Visitor/Neutral" data-stat="visitor_team_name" scope="col" class=" poptip sort_default_asc left">Visitor/Neutral</th>
+         <th aria-label="Visitor Points" data-stat="visitor_pts" scope="col" class=" poptip right" data-tip="Points">PTS</th>
+         <th aria-label="Home/Neutral" data-stat="home_team_name" scope="col" class=" poptip sort_default_asc left">Home/Neutral</th>
+         <th aria-label="Home Points" data-stat="home_pts" scope="col" class=" poptip right">PTS</th>
+         <th aria-label="&nbsp;" data-stat="box_score_text" scope="col" class=" poptip sort_default_asc center">&nbsp;</th>
+         <th aria-label="&nbsp;" data-stat="overtimes" scope="col" class=" poptip center">&nbsp;</th>
+         <th aria-label="Attend." data-stat="attendance" scope="col" class=" poptip right">Attend.</th>
+         <th aria-label="Notes" data-stat="game_remarks" scope="col" class=" poptip sort_default_asc show_partial_when_sorting left">Notes</th>
+      </tr>
+      
+   </thead>
+   <tbody>
+<tr data-row="0"><th scope="row" class="left " data-stat="date_game" csk="200610310LAL">Tue, Oct 31, 2006</th><td class="right " data-stat="game_start_time">10:30p</td><td class="left " data-stat="visitor_team_name" csk="PHO.200610310LAL">Phoenix Suns</td><td class="right " data-stat="visitor_pts">106</td><td class="left " data-stat="home_team_name" csk="LAL.200610310LAL">Los Angeles Lakers</td><td class="right " data-stat="home_pts">114</td><td class="center " data-stat="box_score_text">Box Score</td><td class="center iz" data-stat="overtimes"></td><td class="right " data-stat="attendance">18,997</td><td class="left iz" data-stat="game_remarks"></td></tr>
+<tr data-row="1"><th scope="row" class="left " data-stat="date_game" csk="200610310MIA">Tue, Oct 31, 2006</th><td class="right " data-stat="game_start_time">8:00p</td><td class="left " data-stat="visitor_team_name" csk="CHI.200610310MIA">Chicago Bulls</td><td class="right " data-stat="visitor_pts">108</td><td class="left " data-stat="home_team_name" csk="MIA.200610310MIA">Miami Heat</td><td class="right " data-stat="home_pts">66</td><td class="center " data-stat="box_score_text">Box Score</td><td class="center iz" data-stat="overtimes"></td><td class="right " data-stat="attendance">20,229</td><td class="left iz" data-stat="game_remarks"></td></tr>
+
+</tbody></table></body></html>
