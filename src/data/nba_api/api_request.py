@@ -647,25 +647,41 @@ class nba_stats_API:
 
 	def season_data_compiler(self, season_year, team_abbreviation, give_player_data = True, *args, **kwargs):
 		"""
-		Hi
+		Compiles all of the data for a specified NBA team for a specified season year.
 		
 
 		Parameters
 		--------
 			season_year - *str*
-				f
+				A string object that specifies which season the user would like to obtain data frome. The format
+				of this string is the usual NBA season format: 'YYYY-YY' such as '2018-19'.
 
 			team_abbreviation - *str*
-				f
+				A string object which tells the function which team to get data for. 
 
-			give_player_data - *bool*
-				f
+				All team abbreviations are the usual NBA ones (as seen in game telecasts). If the user is unsure 
+				of the offical abbreviation for a given team, they can check the keys of the teamIDS_dict 
+				attribute of this class. In fact, that class is used to obtain the team ID of the specified team.
+
+			give_player_data - *bool* (default = True)
+				A boolean object that determines whether the function will return player statistics or team 
+				statistics. If true, then player statistics for each game are given and if false, then team 
+				statistics are given instead.
 
 
 		Returns 
 		--------
 			season_df - *DataFrame*
-				f
+				A Pandas DataFrame that contains all of the statistics for the team from the specified season.
+
+				If the user is obtaining team stats from this season, then the DataFrame will be a typical 2D
+				one where each row specifies a game (whose index is given by the game number - 1 since the 
+				indexing starts at 0) and each column represents a given statistic.
+
+				If the user is obtaining player stats from this season, then the returned DataFrame will be 
+				three-dimensional where a game index (again, game number - 1) specifies a 2D DataFrame that 
+				contains all of the player statistics for that game; each row in the 2D DataFrame represents a
+				player and each column represents a statistic.
 
 
 		See Also
@@ -687,7 +703,7 @@ class nba_stats_API:
 		self.last_url_called = api_url
 
 		if response_obj.status_code == 200:
-			print('Request to {} was successful.'.format(self.last_url_called))
+			# print('Request to {} was successful.'.format(self.last_url_called))
 
 			season_data = response_obj.json()['resultSets'][0]['rowSet']
 			gameIDs = np.array(season_data)[:,1].tolist()			
@@ -698,14 +714,13 @@ class nba_stats_API:
 		### Now use gameIDs list to iterate over all of the games in the specified season to get the desired data.
 		if give_player_data:
 			player_dfs_list = []
-			for game_index , gameID in enumerate(gameIDs[:3:]):
+			for game_index , gameID in enumerate(gameIDs):
 				dfs_tuple = self.game_data_compiler( GameID = gameID , 
 													 player_data = True,  
 													 print_url = False )
 				for df in dfs_tuple:
-					if str(df.iloc[0]['TEAM_ID']) == teamID:
-						game_df = df
-				player_dfs_list.append(game_df)
+					if str( int(df.iloc[0]['TEAM_ID']) ) == teamID:
+						player_dfs_list.append(df)
 				print('\tCompiled data from {}/82 games'.format(game_index+1))
 
 			season_df = pd.concat(player_dfs_list , keys = list( range(len(player_dfs_list)) ))
@@ -729,9 +744,8 @@ class nba_stats_API:
 						  							 endpoint_four = 'boxscorescoringv2' , 
 						  							 endpoint_five = 'boxscoretraditionalv2' )
 				for df in dfs_tuple:
-					if df.iloc[0]['TEAM_ID'] == teamID:
-						team_df = df
-					team_dfs_list.append(team_df)
+					if str( int(df.iloc[0]['TEAM_ID']) ) == teamID:
+						team_dfs_list.append(df)
 				print('\tCompiled data from {}/82 games'.format(game_index+1))
 
 			season_df = pd.concat(team_dfs_list , axis = 0)
@@ -772,11 +786,11 @@ if __name__ == '__main__':
 	for year in years_list[:5:]:
 		print('Getting data for the {} season.'.format(year))
 		save_year = year[2:4] + year[5::]
-		starting_index = 13
-		ending_index = 25
+		starting_index = 25
+		ending_index = 29
 		team_iter_index = starting_index
 		if save_year == '1819':
-			for team in teams_list[starting_index::]:
+			for team in teams_list[starting_index:ending_index:]:
 				# instantiate the class for each team because of timing out issues that lead to the webdriver getting
 				# hung up indefinetly (despite efforts to add time_out exceptions above...).
 				api_caller = nba_stats_API()
@@ -807,34 +821,34 @@ if __name__ == '__main__':
 				team_iter_index += 1
 
 	# change to the directory where the player files will be saved
-	final_path = '/Users/sebas12/Documents/Python/sports_betting/data/interim/player_data'
-	os.chdir(final_path)
+	# final_path = '/Users/sebas12/Documents/Python/sports_betting/data/interim/player_data'
+	# os.chdir(final_path)
 
-	# get the player data
-	for year in years_list:
-		print('Getting data for the {} season.'.format(year))
+	# # get the player data
+	# for year in years_list:
+	# 	print('Getting data for the {} season.'.format(year))
 
-		save_year = year[2:4] + year[5::]
+	# 	save_year = year[2:4] + year[5::]
 
-		starting_index = 0
-		ending_index = 29
+	# 	starting_index = 0
+	# 	ending_index = 29
 
-		team_iter_index = starting_index
+	# 	team_iter_index = starting_index
 
-		for team in teams_list[starting_index:ending_index:]:
-			# instantiate the class for each team because of timing out issues that lead to the webdriver getting
-			# hung up indefinetly (despite efforts to add time_out exceptions above...).
-			api_caller = nba_stats_API()
-			print('   Obtaining player data for {} ({}/30)'.format(team , team_iter_index + 1))
-			players_df = api_caller.season_data_compiler( season_year = year, 
-													      team_abbreviation = team, 
-													      give_player_data = True )
-			if team_iter_index == 0:
-				players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'w')
-			else:
-				players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'a')
-			api_caller.close_driver()
-			team_iter_index += 1
+	# 	for team in teams_list[starting_index:ending_index:]:
+	# 		# instantiate the class for each team because of timing out issues that lead to the webdriver getting
+	# 		# hung up indefinetly (despite efforts to add time_out exceptions above...).
+	# 		api_caller = nba_stats_API()
+	# 		print('   Obtaining player data for {} ({}/30)'.format(team , team_iter_index + 1))
+	# 		players_df = api_caller.season_data_compiler( season_year = year, 
+	# 												      team_abbreviation = team, 
+	# 												      give_player_data = True )
+	# 		if team_iter_index == 0:
+	# 			players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'w')
+	# 		else:
+	# 			players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'a')
+	# 		api_caller.close_driver()
+	# 		team_iter_index += 1
 
 
 
