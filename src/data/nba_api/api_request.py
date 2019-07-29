@@ -358,7 +358,7 @@ class nba_stats_API:
 		self.last_url_called = api_url
 
 		# if successful, format and return the data.
-		if requests_obj.status_code == 200:
+		if requests_obj.ok:
 			if print_url:
 				print('Request to {} was successful.'.format(self.last_url_called))
 
@@ -522,7 +522,7 @@ class nba_stats_API:
 		self.last_url_called = api_url
 
 		# if successful, format and return the data.
-		if requests_obj.status_code == 200:
+		if requests_obj.ok:
 			if print_url:
 				print('Request to {} was successful.'.format(self.last_url_called))
 
@@ -702,7 +702,7 @@ class nba_stats_API:
 		response_obj = self.driver.request('GET' , api_url)
 		self.last_url_called = api_url
 
-		if response_obj.status_code == 200:
+		if response_obj.ok:
 			# print('Request to {} was successful.'.format(self.last_url_called))
 
 			season_data = response_obj.json()['resultSets'][0]['rowSet']
@@ -783,11 +783,11 @@ if __name__ == '__main__':
 	os.chdir(final_path)
 
 	# get the team data.
-	for year in years_list[:5:]:
+	for year in years_list[1:5:]:
 		print('Getting data for the {} season.'.format(year))
 		save_year = year[2:4] + year[5::]
-		starting_index = 25
-		ending_index = 29
+		starting_index = 29
+		ending_index = 30
 		team_iter_index = starting_index
 		if save_year == '1819':
 			for team in teams_list[starting_index:ending_index:]:
@@ -821,34 +821,34 @@ if __name__ == '__main__':
 				team_iter_index += 1
 
 	# change to the directory where the player files will be saved
-	# final_path = '/Users/sebas12/Documents/Python/sports_betting/data/interim/player_data'
-	# os.chdir(final_path)
+	final_path = '/Users/sebas12/Documents/Python/sports_betting/data/interim/player_data'
+	os.chdir(final_path)
 
-	# # get the player data
-	# for year in years_list:
-	# 	print('Getting data for the {} season.'.format(year))
+	# get the player data
+	for year in years_list:
+		print('Getting data for the {} season.'.format(year))
 
-	# 	save_year = year[2:4] + year[5::]
+		save_year = year[2:4] + year[5::]
 
-	# 	starting_index = 0
-	# 	ending_index = 29
+		starting_index = 0
+		ending_index = 29
 
-	# 	team_iter_index = starting_index
+		team_iter_index = starting_index
 
-	# 	for team in teams_list[starting_index:ending_index:]:
-	# 		# instantiate the class for each team because of timing out issues that lead to the webdriver getting
-	# 		# hung up indefinetly (despite efforts to add time_out exceptions above...).
-	# 		api_caller = nba_stats_API()
-	# 		print('   Obtaining player data for {} ({}/30)'.format(team , team_iter_index + 1))
-	# 		players_df = api_caller.season_data_compiler( season_year = year, 
-	# 												      team_abbreviation = team, 
-	# 												      give_player_data = True )
-	# 		if team_iter_index == 0:
-	# 			players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'w')
-	# 		else:
-	# 			players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'a')
-	# 		api_caller.close_driver()
-	# 		team_iter_index += 1
+		for team in teams_list[starting_index:ending_index:]:
+			# instantiate the class for each team because of timing out issues that lead to the webdriver getting
+			# hung up indefinetly (despite efforts to add time_out exceptions above...).
+			api_caller = nba_stats_API()
+			print('   Obtaining player data for {} ({}/30)'.format(team , team_iter_index + 1))
+			players_df = api_caller.season_data_compiler( season_year = year, 
+													      team_abbreviation = team, 
+													      give_player_data = True )
+			if team_iter_index == 0:
+				players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'w')
+			else:
+				players_df.to_hdf('{}.h5'.format(save_year), key = team, mode = 'a')
+			api_caller.close_driver()
+			team_iter_index += 1
 
 
 
