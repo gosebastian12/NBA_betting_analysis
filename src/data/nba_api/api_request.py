@@ -575,6 +575,62 @@ class nba_stats_API:
 			return 'Request to {} was not successful. \n Status code is: {}.'.format( self.last_url_called , 
 																					  requests_obj.status_code )
 
+	def game_results_API_call(self, season_year, team_abbreviation, *args, **kwargs):
+		"""
+		Hi
+
+
+		Parameters
+		--------
+
+			season_year - *str*
+			team_abbreviation - *str*
+
+
+		Returns 
+		--------
+
+			hi
+
+
+		See Also
+		--------
+
+		1.		
+		"""
+		teamID = self.teamIDS_dict[team_abbreviation]
+
+		api_url = self.base_url + 'teamgamelog?SeasonType=Regular+Season&Season={}&TeamID={}'.format(season_year , teamID)
+		self.API_params = { 'Season' : season_year , 
+							'SeasonType' : 'Regular+Season&Season' , 
+							'TeamID' : teamID }
+
+		response_obj = self.driver.request('GET' , api_url)
+		self.last_url_called = api_url
+
+		def WL_converter(arr):
+			if arr[-1] == 'W':
+				arr[-1] = 1
+			elif arr[-1] == 'L':
+				arr[-1] = 0
+
+			return arr
+
+		if response_obj.ok:
+			# print('Request to {} was successful.'.format(self.last_url_called))
+
+			season_data = response_obj.json()['resultSets'][0]['rowSet']
+			game_results = np.array(season_data)[:,[0 , 1 , 4]]
+
+			game_results = np.apply_along_axis(WL_converter , axis = 1 , arr = game_results)
+			game_results_df = pd.DataFrame(game_results , columns = ['TEAM_ID' , 'GAME_ID' , 'RESULT']).astype({'TEAM_ID' : str , 'GAME_ID' : str , 'RESULT' : int})
+
+			return game_results_df
+
+		else:
+			return 'Request to the teamgamelog endpoint failed with status code: {}. \n Attemped URL was: {}'.format(response_obj.status_code , self.last_url_called)
+
+
 	def game_data_compiler(self, GameID, player_data = True, pd_index = 0, print_url = True, *args, **kwargs):
 		"""
 		Make several calls to the NBA API and concatenate the resulting outputs in order to have a single data 
@@ -715,7 +771,9 @@ class nba_stats_API:
 		### Now use gameIDs list to iterate over all of the games in the specified season to get the desired data.
 		if give_player_data:
 			player_dfs_list = []
-			for game_index , gameID in enumerate(gameIDs):
+			for game_index , gameID in enumerate(gameIDs[-1::-1]):  
+				# the NBA organizes the games in the teamgamelog endpoint in REVERSE ORDER which is NOT what we
+				# want.
 				dfs_tuple = self.game_data_compiler( GameID = gameID , 
 													 player_data = True,  
 													 print_url = False )
@@ -730,7 +788,7 @@ class nba_stats_API:
 
 		else:
 			team_dfs_list = []
-			for game_index , gameID in enumerate(gameIDs):
+			for game_index , gameID in enumerate(gameIDs[-1::-1]):
 				# make the API call for the game. We DO NOT need data from the usage boxscore endpoint for teams
 				# beacuse the values for all of them are 1. No need to download (and eventually give the neural
 				# network) more information if we don't need it. Especially since this will mean 82 less runs of
