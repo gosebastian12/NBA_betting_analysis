@@ -48,12 +48,13 @@ class nba_stats_API:
 			  - 'phantomjs'
 			  - 'safari'
 
-		webdriver_path - *str (default = '/Users/sebas12/Downloads/chromedriver')
+		webdriver_path - *str* (default = '/Users/sebas12/Downloads/chromedriver')
 			Indicates to the function the location of the executable for the the webdriver on the user's machine.
 
 
 	See Also
 	--------
+	
 	1. `Selenium Requests Homepage <https://github.com/cryzed/Selenium-Requests>`_
 	2. `Saving Pandas DataFrames <https://stackoverflow.com/questions/37010212/what-is-the-fastest-way-to-upload-a-big-csv-file-in-notebook-to-work-with-python>`_
 	"""
@@ -786,10 +787,10 @@ if __name__ == '__main__':
 	for year in years_list[1:5:]:
 		print('Getting data for the {} season.'.format(year))
 		save_year = year[2:4] + year[5::]
-		starting_index = 29
+		starting_index = 6
 		ending_index = 30
 		team_iter_index = starting_index
-		if save_year == '1819':
+		if save_year == '1718':
 			for team in teams_list[starting_index:ending_index:]:
 				# instantiate the class for each team because of timing out issues that lead to the webdriver getting
 				# hung up indefinetly (despite efforts to add time_out exceptions above...).
