@@ -1,5 +1,6 @@
 playground/ipython.pdf
 references/NN_sports_betting.pdf
+NBAenv/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
