@@ -19,20 +19,17 @@ class data_cummulation:
 	Attributes
 	--------
 
-	1. 
+	1. project_root
+	2. data_loc
+	3. teamIDS_dict
+	4. per_min_stats
 
 
 	Parameters
 	--------
+
 		path_to_data - *str* (default = data/interim)
 
-		kwargs - **
-
-
-	See Also
-	--------
-
-	1.
 	"""
 	def __init__(self, path_to_data = 'data/interim/', *args, **kwargs):
 		self.project_root = '/Users/sebas12/Documents/Python/sports_betting/'
@@ -114,17 +111,16 @@ class data_cummulation:
 		Returns 
 		--------
 
-
-
-		See Also
-		--------
-
-		1.
+			loaded_df - *Pandas DataFrame*
+				The DataFrame returned when loaded in using pandas.read_hdf().
 		"""
 		try:
 			file_name.index('.')
 		except ValueError:
-			file_name += '.h5'
+			if player_data:
+				file_name += '_player_data.h5'
+			else:
+				file_name += '_team_data.h5'
 
 		if player_data:
 			path_to_data = self.data_loc + "player_data"
@@ -134,9 +130,9 @@ class data_cummulation:
 			path_to_data = self.data_loc + "team_data"
 			os.chdir(path_to_data)
 
-		df = pd.read_hdf(file_name , key = df_key)
+		loaded_df = pd.read_hdf(file_name , key = df_key)
 
-		return df
+		return loaded_df
 
 	def type_converter(self, file_name, df_key, player_data = True, *args, **kwargs):
 		"""
@@ -155,11 +151,8 @@ class data_cummulation:
 		Returns 
 		--------
 
-
-		See Also
-		--------
-
-		1.
+			right_type_df - *Pandas DataFrame*
+				The Pandas DataFrame where each element has the right type.
 		"""
 		if player_data:
 			df = self.load_in_df(file_name, df_key)
@@ -194,12 +187,10 @@ class data_cummulation:
 
 		Returns 
 		--------
+		
+			new_df - *DataFrame*
+				The DataFrame that has the statistics to be converted in per minute seen in self in __init__().
 
-
-		See Also
-		--------
-
-		1.
 		"""
 		if kwargs:
 			stats_to_norm = list(kwargs.values())
@@ -213,8 +204,7 @@ class data_cummulation:
 		else:
 			new_df = self.type_converter(file_name, df_key, player_data = False)
 
-		for stat in stats_to_norm:
-			new_df[stat] = new_df[stat].divide(new_df['MIN'])
+		new_df.loc[:,stats_to_norm] = new_df.loc[:,stats_to_norm].divide(new_df['MIN'] , axis = 0)
 
 		return new_df
 
@@ -238,53 +228,66 @@ class data_cummulation:
 
 		Returns 
 		--------
+			cum_df - *Pandas DataFrame*
+				The DataFrame where each column has undergone a cummulative sum and then averaged over.
 
-
-		See Also
-		--------
-
-		1.
 		"""
 		if player_data:
 			cum_df = self.per_minute_norm(file_name , df_key , player_data = True)
 		else:
 			cum_df = self.per_minute_norm(file_name , df_key , player_data = False)
 
-		num_games_series = pd.Series(np.arange(1 , 82))
+		num_games_series = pd.Series(np.arange(1 , 83))
 		cum_df.iloc[:,2:] = cum_df.iloc[:,2:].cumsum(axis = 0).divide(num_games_series , axis = 0)
 
 		return cum_df
 
-	def save_cum_df(self, file_name, df_key, player_data = True, *args, **kwargs):
-		"""
-		Hi
-
-
-		Parameters
-		--------
-		
-			file_name - *str*
-
-			df_key - *str*
-			
-			player_data - *bool* (default = True)
-
-			kwargs - *str object(s)*
-		
-
-		Returns 
-		--------
-
-		
-
-		See Also
-		--------
-
-		1.
-		"""
-		pass
-
 
 if __name__ == '__main__':
-	pass
+	### Prompt the user
+	print('Running the script directly.')
+
+	### initial instantsiation of the class to get teams_list
+	cummulation = data_cummulation()
+
+	### make years and teams list.
+	years_list = ['20{}-{}'.format(i , i+1) for i in range(18 , 9 , -1)] + ['2009-10'] + ['200{}-0{}'.format(i , i+1) for i in range(8 , 3 , -1)]
+	teams_list = list(data_cummulation.teamIDS_dict.keys())
+
+	### load in the team data
+	# change to the subdirectory where the team files are
+	interim_path = '/Users/sebas12/Documents/Python/sports_betting/data/interim/team_data'
+	os.chdir(interim_path)
+	# get the data iteratively 
+	for year in years_list:
+		file_name = year[2:4] + year[5::] + '_team_data.h5'
+		for team_iter_index , team in enumerate(teams_list):
+			team_df = data_cummulation.cumavg(file_name = file_name, df_key = team, player_data = False)
+
+			final_path = '/Users/sebas12/Documents/Python/sports_betting/data/processed/team_data'
+			os.chdir(final_path)
+
+			if team_iter_index == 0 :
+				team_df.to_hdf('{}_team_data.h5'.format(save_year), key = team, mode = 'w')
+			else:
+				team_df.to_hdf('{}_team_data.h5'.format(save_year), key = team, mode = 'a')
+
+	### load in the game data
+	# change to the subdirectory where the team files are
+	interim_path = '/Users/sebas12/Documents/Python/sports_betting/data/interim/player_data'
+	os.chdir(interim_path)
+	# get the data iteratively
+	for year in years_list:
+		file_name = year[2:4] + year[5::] + '_player_data.h5'
+		for team_iter_index , team in enumerate(teams_list):
+			team_df = data_cummulation.cumavg(file_name = file_name, df_key = team, player_data = True)
+
+			final_path = '/Users/sebas12/Documents/Python/sports_betting/data/processed/player_data'
+			os.chdir(final_path)	
+
+			if team_iter_index == 0 :
+				team_df.to_hdf('{}_player_data.h5'.format(save_year), key = team, mode = 'w')
+			else:
+				team_df.to_hdf('{}_player_data.h5'.format(save_year), key = team, mode = 'a')	
+
 
