@@ -111,6 +111,11 @@ class data_cummulation:
 			player_data - *bool* (default = True)
 		
 
+		Returns 
+		--------
+
+
+
 		See Also
 		--------
 
@@ -147,6 +152,10 @@ class data_cummulation:
 			player_data - *bool* (default = True)
 		
 
+		Returns 
+		--------
+
+
 		See Also
 		--------
 
@@ -182,6 +191,10 @@ class data_cummulation:
 
 			kwargs - *str object(s)*
 		
+
+		Returns 
+		--------
+
 
 		See Also
 		--------
@@ -223,6 +236,10 @@ class data_cummulation:
 			kwargs - *str object(s)*
 		
 
+		Returns 
+		--------
+
+
 		See Also
 		--------
 
@@ -253,6 +270,11 @@ class data_cummulation:
 			player_data - *bool* (default = True)
 
 			kwargs - *str object(s)*
+		
+
+		Returns 
+		--------
+
 		
 
 		See Also
