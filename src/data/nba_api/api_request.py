@@ -877,11 +877,11 @@ if __name__ == '__main__':
 	os.chdir(final_path)
 
 	# get the data iteratively 
-	for year in years_list[0:1:]:
+	for year in years_list[4:5:]:
 		print('Getting team data for the {} season.'.format(year))
 
 		save_year = year[2:4] + year[5::]
-		starting_index = 21
+		starting_index = 0
 		ending_index = 30
 		team_iter_index = starting_index
 
