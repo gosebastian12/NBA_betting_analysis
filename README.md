@@ -5,7 +5,7 @@ Overview
 ------------
 Implementation of Hubacek et. al. 2019 in Python to NBA sports betting. This repository contains scripts that were written to download data from various internet sources, the data used in this project (in all its different forms), notebooks that demonstrate the analysis done, and files that represent the reports made from the results of said analyis. 
 
-The work of this project builds on the methodology outlined in that paper, particularly in the neural networks implemented in the forcasting part of it. This is done by using the concept of Residual Neural Networks (referred to as ResNets for short; see the resources below for more information)
+The work of this project builds on the methodology outlined in that paper, particularly in the neural networks implemented in the forcasting part of it. This is done by using the concept of Residual Neural Networks (referred to as ResNets for short; see the resources below for more information).
 
 See below for the organization of this repository. Additionally, each directory has a similar README file that outlines the contents of that directory.
 
