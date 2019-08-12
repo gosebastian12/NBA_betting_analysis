@@ -768,7 +768,12 @@ class nba_stats_API:
 			# print('Request to {} was successful.'.format(self.last_url_called))
 
 			season_data = response_obj.json()['resultSets'][0]['rowSet']
-			gameIDs = np.flip(np.array(season_data)[:,1]).tolist()			
+			gameIDs = np.flip(np.array(season_data)[:,1]).tolist()
+
+			if season_year == '2012-13' and team_abbreviation == 'BOS' or season_year == '2012-13' and team_abbreviation == 'IND':
+				gameIDs.remove('0021201214')
+
+			num_games = len(gameIDs)
 
 		else:
 			return 'Request to the teamgamelog endpoint failed with status code: {}. \n Attemped URL was: {}'.format(response_obj.status_code , self.last_url_called)
@@ -785,7 +790,7 @@ class nba_stats_API:
 				for df in dfs_tuple:
 					if str( int(df.iloc[0]['TEAM_ID']) ) == teamID:
 						player_dfs_list.append(df)
-				print('\tCompiled data from {}/82 games'.format(game_index+1))
+				print('\tCompiled data from {}/{} games'.format(game_index+1 , num_games))
 
 			season_df = pd.concat(player_dfs_list , keys = list( range(len(player_dfs_list)) ))
 
@@ -810,7 +815,7 @@ class nba_stats_API:
 				for df in dfs_tuple:
 					if str( int(df.iloc[0]['TEAM_ID']) ) == teamID:
 						team_dfs_list.append(df)
-				print('\tCompiled data from {}/82 games'.format(game_index+1))
+				print('\tCompiled data from {}/{} games'.format(game_index+1 , num_games))
 
 			season_df = pd.concat(team_dfs_list , axis = 0)
 
@@ -877,12 +882,13 @@ if __name__ == '__main__':
 	os.chdir(final_path)
 
 	# get the data iteratively 
-	for year in years_list[4:5:]:
+	for year in years_list[6:7:]:
 		print('Getting team data for the {} season.'.format(year))
 
 		save_year = year[2:4] + year[5::]
-		starting_index = 0
+		starting_index = 17
 		ending_index = 30
+
 		team_iter_index = starting_index
 
 		for team in teams_list[starting_index:ending_index:]:
